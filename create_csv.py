@@ -47,10 +47,10 @@ import json
 
 
 
-with open('DHG2WH.txt', 'r') as fp:
+with open('tpd change to txt/Well6.txt', 'r') as fp:
     data = fp.readlines()
-    tpd_res = data[215:]
-    free_var = data[202:212]
+    tpd_res = data[148:]
+    free_var = data[137:147]
 
 data_dict = {"free variables":
                 {
@@ -71,7 +71,9 @@ for d in range(len(free_var)):
 
 print(data_dict)
 
-
+# TODO: find the lines byself
+# TODO: do this for all files in a directory
+# TODO: create a GUI and .exe file from this module
 # tpd_res
 tpd_res = [i.split() for i in tpd_res]
 tpd_res = np.array(tpd_res)[:,0]
@@ -79,8 +81,8 @@ tpd_res = [float(i.replace(',','')) for i in tpd_res]
 data_dict['tpd results'] = tpd_res
 
 
-# with open('data_2.json','w') as outfile:
-#     json.dump(data_json,outfile)
+with open('wells data/Well6.json','w') as outfile:
+    json.dump(data_dict,outfile)
 
 # read json file again--------------------------
 

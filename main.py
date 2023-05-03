@@ -41,3 +41,5 @@ print(f'Total gas lift injection used is {round(TotalGL, 2)}')
 
 end = time.time()
 print(f'Execution time is {end - start}')
+
+# TODO: do this for all data files in a directory
