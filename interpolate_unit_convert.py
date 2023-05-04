@@ -4,21 +4,15 @@ from scipy import interpolate as irp
 from read_function import all_data
 import numpy as np
 
-class interpolation:
+# TODO: change all_data to input af interpolation class instructor
+class Interpolation:
     def __init__(self):
         self.free_vars = all_data[0]
         self.tpd_res = all_data[1]
         self.tpd_res_array = []
         self.new_dim = []
 
-    def dict_convertion(self):
-        #The order of unit_list is decided after free variable in well-model from top to bottom. 
-        unit_list = ['Rate values', 'GL rate', 'WC', 'GOR', 'Pressure'] #Have to have same length as number of free variables. 
-        dict_conv = {}
-        for i in range(len(self.free_vars)):
-            dict_conv['Free_variable_'+str(i + 1)] = unit_list[i]
-        return dict_conv
-         
+    # unit_list = ['Rate values', 'GL rate', 'WC', 'GOR', 'Pressure'] #Have to have same length as number of free variables.
     def convert_points(self, list_2bconverted, f1_add, f2_mult, f3_add):
         list = []
         for i in range(np.size(list_2bconverted)):
@@ -30,33 +24,31 @@ class interpolation:
     
     def get_points(self): 
         l = []
-        dict_conversion = self.dict_convertion()
-        for i in range(len(self.free_vars)):
+        for var in list(self.free_vars.keys())[::-1]:
             points_dict = []
             df_to_arr = []
             df_to_arr_converted = []
-            # TODO: remove dict_conversion
-            if dict_conversion['Free_variable_'+str(len(self.free_vars) - i)].lower() == 'rate values':
-                points_dict = self.free_vars.get('rate') #Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
+            if var == 'rate values':
+                points_dict = self.free_vars.get('rate values') #Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
                 df_to_arr = np.array(points_dict) #Converts df to numpy array
                 df_to_arr_converted = self.convert_points(df_to_arr, 0, 0.158987294928, 0) #Multiplication for rate values unit conversion
                 new_arr = df_to_arr_converted.flatten() 
-            elif dict_conversion['Free_variable_'+str(len(self.free_vars) - i)].lower() == 'gl rate':
-                points_dict = self.free_vars.get('var 4') #Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
+            elif var == 'gl rate':
+                points_dict = self.free_vars.get('gl rate') #Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
                 df_to_arr = np.array(points_dict) #Converts df to numpy array
                 df_to_arr_converted = self.convert_points(df_to_arr, 0, 28173.97429124846, 0) #Multiplication for GL rate unit conversion
                 new_arr = df_to_arr_converted.flatten() 
-            elif dict_conversion['Free_variable_'+str(len(self.free_vars) - i)].lower() == 'wc': #NO conversion for WC
-                points_dict = self.free_vars.get('var 3') #Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
+            elif var == 'wc': #NO conversion for WC
+                points_dict = self.free_vars.get('wc') #Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
                 df_to_arr = np.array(points_dict) #Converts df to numpy array
                 new_arr = df_to_arr.flatten()
-            elif dict_conversion['Free_variable_'+str(len(self.free_vars) - i)].lower() == 'gor':
-                points_dict = self.free_vars.get('var 2') #Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
+            elif var == 'gor':
+                points_dict = self.free_vars.get('gor') #Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
                 df_to_arr = np.array(points_dict) #Converts df to numpy array
                 df_to_arr_converted = self.convert_points(df_to_arr, 0, 0.17810760667903525, 0) #Multiplication for GOR unit conversion
                 new_arr = df_to_arr_converted.flatten()
-            elif dict_conversion['Free_variable_'+str(len(self.free_vars) - i)].lower() == 'pressure':
-                points_dict = self.free_vars.get('var 1') #Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
+            elif var == 'pressure':
+                points_dict = self.free_vars.get('pressure') #Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
                 df_to_arr = np.array(points_dict) #Converts df to numpy array
                 df_to_arr_converted = self.convert_points(df_to_arr, 0, 0.0689475729, 1) #Multiplication for top node pressure unit conversion (and addition of 1)
                 new_arr = df_to_arr_converted.flatten()
@@ -100,13 +92,13 @@ class interpolation:
     def do_interpolation(self):
         self.pnts = self.convert_to_tup()
         self.data = self.get_data()
-        self.result = irp.RegularGridInterpolator(points=self.pnts, values=self.data, method="linear")
+        self.result = irp.RegularGridInterpolator(points=self.pnts, values=self.data, method="cubic")
         return self.result
 
 ## Interpolation test
-file = interpolation()
-res = file.do_interpolation()
-test = np.array([119.99, 90.46, 0, 0, 52]) #120, 91, 40, 35003.6, 1418.15
-int = res(test)
-
-print(int)
+#
+# file = Interpolation()
+# res = file.do_interpolation()
+# test = np.array([119.99, 90.46, 0, 0, 52]) #120, 91, 40, 35003.6, 1418.15
+# int = res(test)
+# print(int)

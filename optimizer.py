@@ -1,11 +1,9 @@
 #This file defines the class for optimizing
 from scipy import optimize as sciopt
-from interpolate_unit_convert import interpolation as int
+from interpolate_unit_convert import Interpolation as int
 from scipy.optimize import Bounds as bnd 
 import numpy as np
 import time
-
-#start = time.time()
 
 class optimize:
     def __init__(self):
@@ -150,75 +148,3 @@ class optimize:
         argu = (OR_target, GLR_target, w1, w2, num_wells)
         res = sciopt.minimize(func, x0, args=argu, method=algorithm, jac='2-point', hess=None, bounds=bnds, constraints=cons) 
         return res
-    
-## Optimization test 1: Minimize GLR with constraint on pressure
-file = optimize() #Do not comment this out when running other optimization problems
-file2 = int() #Do not comment this out when running other optimization problems
-# x0 = (40000) # x0 for opt: min GLR, x = GLR. x0 = 40 000: 2:27s
-# LR = 2000 #Too high LR makes it impossible to reach WHP = 20 bar
-# BHP = 120
-# GOR = 91
-# WC = 50
-# minpress = 20
-# res = file.min_GLR(x0, LR, BHP, GOR, WC, minpress)
-# print(res)
-# print(res.x)
-
-# x_val = res.x
-
-# input_val = (BHP, GOR, WC, x_val, LR)
-# interpol = file2.do_interpolation(0)
-# res2 = interpol(input_val)
-# print(f'WHP with GLR = {x_val} is {res2}')
-
-## Optimization test 2: Maximize oil  with GLR constraint - This is slow and improved with optimization 3
-    # Opt problem works with:
-    # x0 = (0), BHP = 120, GOR = 91, WC = 50, pressure_cons = 20, GL_constraint = 80 000, bounds_lr = (750, 3545). Does not work with GL_constraint 110 000 or higher
-    # Ser ut som det er noe som begrenser det til at maks olje er 1570.75, ved 81 942 GLR (når man løsner på begrensningene)
-# wells = [50]
-# res = file.max_oilrate(wells, x0, 20)
-# print(res)
-# print(res.fun)
-# OR = res.x*(1-(wells[0]/100))
-# GLR = file.min_GLR(x0, res.x, BHP, GOR, WC, 20) 
-# print(f'The maximum oil rate with the constraint is {OR}, and the gas lift injection is {GLR}')
-
-## Optimization test 3 - minimize deviation for one well
-
-# x0 = [500, 50000] 
-# res = file.min_deviation(x0, 120, 91, 50, 20, 1500, 80000, 1, 1)
-# print(res)
-# print(f'To minimize the objection function, the optimal solution is: Oil rate = {round(res.x[0], 2)} with Gas lift rate = {round(res.x[1], 2)}')
-
-## Optimization test 4 - minimize deviation for multiple wells
-# Inputs
-# numberofwells = 5 #If this value is less than max possible wells, the result will show the remaining x's equal to x0
-# x0 = [500, 30000, 500, 30000, 500, 30000, 500, 30000, 500, 30000]
-# BHP = [120, 120, 120, 120, 120]
-# GOR = [91, 91, 91, 91, 91]
-# WC = [40, 45, 50, 55, 60]
-# presscons_val = [20, 20, 20, 20, 20]
-# glr_max_limit = 200000
-# OR_target = [1600, 1400, 1400, 1400, 1400]
-# GLR_target = [35000, 35000, 35000, 35000, 35000]
-# w1 = [1, 1, 1, 1, 1] #Weight on OR - OR_target for each well
-# w2 = [1, 1, 1, 1, 1] #Weight on GLR - GLR_target for each well
-# #lb_var = [600, 15000, 500, 19000, 375, 23000, 300, 25000, 200, 27000] 
-# #lb_var = [600, 0, 500, 0, 375, 0, 300, 0, 200, 0] 
-# lb_var = [40, 0, 40, 0, 40, 0, 40, 0, 40, 0]
-# ub_var = [1899, 110000, 1899, 110000, 1899, 110000, 1899, 110000, 1899, 110000]
-
-# res = file.min_dev_multiplewells('slsqp',numberofwells, x0, BHP, GOR, WC, presscons_val, glr_max_limit, OR_target, GLR_target, w1, w2, lb_var, ub_var)
-# print(res)
-# for i in range(numberofwells):
-#     Totaloil =+ res.x[2*i]    
-# print(f'Total oil production is {round(Totaloil, 2)}')
-
-# der = []
-# for i in range(numberofwells):
-#     result = (res.jac[i*2])/(res.jac[i*2 + 1])
-#     der.append(result)
-# print(f'The derivative dQoil/dQgaslift for the wells are {der}')
-
-# end = time.time()
-# print(f'Execution time is {end - start}')
