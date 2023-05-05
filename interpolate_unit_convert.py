@@ -1,15 +1,14 @@
 # This interpolator includes convertion of the units
 
 from scipy import interpolate as irp
-from read_function import all_data
 import numpy as np
 
 
 # TODO: change all_data to input af interpolation class instructor
 class Interpolation:
-    def __init__(self):
-        self.free_vars = all_data[0]
-        self.tpd_res = all_data[1]
+    def __init__(self,free_vars,tpd_res):
+        self.free_vars =free_vars
+        self.tpd_res = tpd_res
         self.tpd_res_array = []
         self.new_dim = []
 

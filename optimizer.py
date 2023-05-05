@@ -6,8 +6,8 @@ import numpy as np
 import time
 
 class optimize:
-    def __init__(self):
-        self.file = int()
+    def __init__(self,interpolation_obj):
+        self.file = interpolation_obj
         self.wells_def = {}
 
     ## Opt 1: Minimize GLR to reach minimum WHP
