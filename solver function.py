@@ -1,8 +1,7 @@
 import numpy as np
 import pandas as pd
-from interpolate_six_files import interpolate_all_wells
+from interpolate_six_files import RGI_WELLs_dict
 
-RGI_WELLs_dict = interpolate_all_wells()
 
 J = [16.512,16.49,16.49,1.66,1.66,1.663] # STB/d/psi
 PR = [238.88,256.11,256.11,209.64,209.64,209.64] # psi
