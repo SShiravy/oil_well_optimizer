@@ -14,6 +14,10 @@ def well_production(GLR,WC,GOR,WGP,J,PR,RGI_well):
     # fing BHP from IPR
     BHP_IPR=PR-Q/J
     # TODO: do itaration
+
+    BHP_VLP-BHP_IPR
+
+
     qw=Q*(1-WC)
     qo=1-qw
     qg=qo*GOR+GLR

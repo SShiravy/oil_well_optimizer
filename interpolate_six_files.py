@@ -22,18 +22,27 @@ def interpolate_all_wells():
         interpolate_obj = Interpolation(free_vars,tpd_res)
         result = interpolate_obj.do_interpolation()
         RGI_well = []
+        print(data_file,'--',free_vars,'========================================')
         for row in df.values.tolist():
             # (WHP, GOR, WC, GLR, LR)
             RGI = result(row[::-1])
             RGI_well.append(RGI)
+
+        print(RGI_well,'\n')
         # file name to all RGIs , ex: Well1 : [....]
         RGI_dict[data_file[:-5]] = RGI_well
 
     return RGI_dict
 
 RGI_WELLs_dict = interpolate_all_wells()
-print('RGI for each well with given data is:\n', RGI_dict)
+print('RGI for each well with given data is:\n', RGI_WELLs_dict)
 
 
 end = time.time()
 print(f'Execution time is {end - start}')
+
+#
+# Pressure
+# GOR
+# WC
+# GL rate
