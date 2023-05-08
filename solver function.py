@@ -10,8 +10,7 @@ PR = [238.88,256.11,256.11,209.64,209.64,209.64] # psi
 def well_production(GLR,WC,GOR,WHP,J,PR,RGI_well):
     # assuming a Q
     Q=1000
-    # TODO: do itaration
-    alpha = 0.1
+    alpha = 0.01
     while True:
         # Find BHP from tubing table
         BHP_VLP = RGI_well
@@ -33,6 +32,7 @@ def well_production(GLR,WC,GOR,WHP,J,PR,RGI_well):
 # TODO: itaration for qo field and ....
 
 df = pd.read_csv('Data_for_Interpolation.csv')
+
 i=0
 for row in df.values.tolist():
     Q, GLR, WC, GOR, WHP = row
