@@ -107,11 +107,3 @@ class Interpolation:
         self.data = self.get_data()
         self.result = irp.RegularGridInterpolator(points=self.pnts, values=self.data, method="cubic")
         return self.result
-
-## Interpolation test
-#
-# file = Interpolation()
-# res = file.do_interpolation()
-# test = np.array([119.99, 90.46, 0, 0, 52]) #120, 91, 40, 35003.6, 1418.15
-# int = res(test)
-# print(int)
