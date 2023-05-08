@@ -8,8 +8,7 @@ def read_json_data(file_name):
     :return: free variables and tpd results
     '''
     with open(file_name,'r') as data:
-        data_json_str = json.load(data)
-        data_dict = json.loads(data_json_str)
+        data_dict = json.load(data)
     free_vars = data_dict["free variables"]
     tpd_res = pd.Series(data_dict["tpd results"])
     return free_vars,tpd_res

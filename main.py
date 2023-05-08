@@ -4,7 +4,6 @@ from optimizer import optimize
 from read_function import read_json_data
 from interpolate_unit_convert import Interpolation
 ## Run optimizer from this script
-
 start = time.time()
 # Input to optimizer
 numberofwells = 5 #If this value is less than max possible wells, the result will show the remaining x's equal to x0
@@ -44,7 +43,8 @@ def run_opt(interpolate_obj):
     print(f'The derivative dQoil/dQgaslift for the wells are {der}')
     print(f'Total gas lift injection used is {round(TotalGL, 2)}')
 
-data_path = 'wells data'
+data_path = 'old well data'
+
 for data_file in os.listdir(data_path):
     print(data_file,'------------------------------------------------------------------')
     free_vars,tpd_res = read_json_data(data_path+'/'+data_file)

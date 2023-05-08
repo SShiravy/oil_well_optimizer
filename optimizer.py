@@ -136,7 +136,7 @@ class optimize:
         func = self.obj_dev_mult
         cons_fun_press = self.presscons_dev_mult
         cons_fun_glr = self.glr_tot_cons
-        jacobian = self.calc_jac  
+        jacobian = self.calc_jac
         hessian = self.calc_hess
         bnds = bnd(lb, ub)
         cons1 = {'type': 'ineq', 'fun': cons_fun_glr, 'args': [glr_max_limit, num_wells]} #Constraint on maximum GLR
@@ -144,7 +144,7 @@ class optimize:
         for i in range(num_wells): 
             counter = i
             presscons = {'type': 'ineq', 'fun': cons_fun_press, 'args': [BHP, GOR, WC, presscons_val, counter, num_wells]}
-            cons.append(presscons)   
+            cons.append(presscons)
         argu = (OR_target, GLR_target, w1, w2, num_wells)
         res = sciopt.minimize(func, x0, args=argu, method=algorithm, jac='2-point', hess=None, bounds=bnds, constraints=cons) 
         return res

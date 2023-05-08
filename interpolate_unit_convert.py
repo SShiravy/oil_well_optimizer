@@ -4,7 +4,6 @@ from scipy import interpolate as irp
 import numpy as np
 
 
-# TODO: change all_data to input af interpolation class instructor
 class Interpolation:
     def __init__(self,free_vars,tpd_res):
         self.free_vars =free_vars
