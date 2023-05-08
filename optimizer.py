@@ -47,7 +47,7 @@ class optimize:
     def GL_constraint(self, x, init_guess, WC_list, pressure_cons_val):
         LR = x[0]
         x0 = init_guess
-        res = self.min_GLR(x0, LR, 120, 91, 50, pressure_cons_val) #This includes pressure constraint. TODO: MAKE BHP and GOR and WC inputs: WC_list[0]
+        res = self.min_GLR(x0, LR, 120, 91, 50, pressure_cons_val) #This includes pressure constraint. TODO: MAKE WHP and GOR and WC inputs: WC_list[0]
         GLR = res.x
         return -GLR + 25000
     
@@ -96,10 +96,10 @@ class optimize:
             fun = fun + res
         return fun
     
-    def presscons_dev_mult(self, x, BHP, GOR, WC, pressure_cons_val, counter, num_wells): #same input as in opt 3, but here the input are lists
+    def presscons_dev_mult(self, x, WHP, GOR, WC, pressure_cons_val, counter, num_wells): #same input as in opt 3, but here the input are lists
         LR = x[2*counter]/(1-(WC[counter]/100)) #LR expressed by OR (the free variable)
         GLR = x[2*counter + 1]
-        input_val = (BHP[counter], GOR[counter], WC[counter], GLR, LR) #TNP, GOR, WC are constants
+        input_val = (WHP[counter], GOR[counter], WC[counter], GLR, LR) #TNP, GOR, WC are constants
         interpol = self.file.do_interpolation() #Col 0 = WHP
         res = interpol(input_val)
         cons = res - pressure_cons_val[0]
