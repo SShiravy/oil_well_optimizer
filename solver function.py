@@ -1,27 +1,41 @@
 import numpy as np
+import pandas as pd
 from interpolate_six_files import interpolate_all_wells
 
 RGI_WELLs_dict = interpolate_all_wells()
 
-J = [7.16,7.151,7.151,0.721,0.721,0.721] # STB/d/psi
-PR = [3450,3700,3700,3026,3026,3026] # psi
+J = [16.512,16.49,16.49,1.66,1.66,1.663] # STB/d/psi
+PR = [238.88,256.11,256.11,209.64,209.64,209.64] # psi
 
-def well_production(GLR,WC,GOR,WGP,J,PR,RGI_well):
+def well_production(GLR,WC,GOR,WHP,J,PR,RGI_well):
     # assuming a Q
     Q=1000
-    # Find BHP from tubing table
-    BHP_VLP=RGI_well
-    # fing BHP from IPR
-    BHP_IPR=PR-Q/J
     # TODO: do itaration
+    alpha = 0.1
+    while True:
+        # Find BHP from tubing table
+        BHP_VLP = RGI_well
+        # fing BHP from IPR
+        BHP_IPR = PR - Q / J
+        Q = Q - alpha * (-2/J*(BHP_IPR-BHP_VLP))
+        if abs(BHP_IPR-BHP_VLP)<0.00005:
+            print('mio',BHP_IPR-BHP_VLP)
+            break
 
-    BHP_VLP-BHP_IPR
-
+    print(Q)
 
     qw=Q*(1-WC)
     qo=1-qw
     qg=qo*GOR+GLR
+
     return qo,qg,qw
 
 # TODO: itaration for qo field and ....
-qo,qg,qw = well_production()
+
+df = pd.read_csv('Data_for_Interpolation.csv')
+i=0
+for row in df.values.tolist():
+    Q, GLR, WC, GOR, WHP = row
+    qo,qg,qw = well_production(GLR, WC, GOR, WHP,J[0],PR[0],RGI_WELLs_dict['Well1'][i])
+    i+=1
+

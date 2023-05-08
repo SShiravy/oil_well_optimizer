@@ -4,9 +4,6 @@ import pandas as pd
 import os
 from read_function import read_json_data
 
-
-start = time.time()
-
 def interpolate_all_wells():
     '''
     read data from csv as df, create interpolation obj from free vars and tpd res of wells .json
@@ -36,10 +33,6 @@ def interpolate_all_wells():
 
 RGI_WELLs_dict = interpolate_all_wells()
 print('RGI for each well with given data is:\n', RGI_WELLs_dict)
-
-
-end = time.time()
-print(f'Execution time is {end - start}')
 
 #
 # Pressure
