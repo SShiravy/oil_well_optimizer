@@ -15,8 +15,7 @@ def well_production(GLR,WC,GOR,WHP,J,PR,RGI_well):
         # fing BHP from IPR
         BHP_IPR = PR - Q / J
 
-        # Q -= 0.1 * (BHP_VLP-BHP_IPR)
-        Q = Q - alpha * (-2/J*(BHP_IPR-BHP_VLP)) # Gradient Decent : Q - d/dQ f(Q) ; f(Q)= BHP_BLP - PR - Q/J
+        Q = Q - alpha * (-2/J*(BHP_IPR-BHP_VLP)) # Gradient Decent : Q - d/dQ f(Q) ; f(Q)= (BHP_VLP - BHP_IPR)^2
         if abs(BHP_IPR-BHP_VLP)< 1e-6:
             print('BHP_IPR-BHP_VLP:',BHP_IPR-BHP_VLP)
             print('Q:', Q)
