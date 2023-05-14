@@ -10,6 +10,7 @@ def interpolate_all_wells(data_path,df):
     :return: dictionary keys are wells and values are list of RGIs
     '''
     RGI_dict = {}
+    wells_interpolate_obj = [] # for solver function in next step we save all interpolate objects
     for data_file in os.listdir(data_path):
         free_vars,tpd_res = read_json_data(data_path+'/'+data_file)
         # create interpolation object and doing interploation
@@ -17,17 +18,18 @@ def interpolate_all_wells(data_path,df):
         result = interpolate_obj.do_interpolation()
         # interpolate each row of df
         RGI_well = []
-        print(data_file,'--',free_vars,'========================================')
+        print(data_file,'--',free_vars)
         for row in df.values.tolist():
             # (WHP, GOR, WC, GLR, LR)
-            RGI = result(row[::-1])
+            wells_interpolate_obj.append(result)
+            RGI = result(row)
             RGI_well.append(RGI)
 
         print(RGI_well,'\n')
         # file name to all RGIs , ex: Well1 : [....]
         RGI_dict[data_file[:-5]] = RGI_well
 
-    return RGI_dict
+    return RGI_dict,wells_interpolate_obj
 
 # -----------------------------------------------------------------------------------
 data_path = 'wells data'
@@ -36,5 +38,4 @@ df = pd.read_csv('Data_for_Interpolation.csv')
 print(df)
 # run function to interpolate df (data from csv file , 10 rows of data in this example)
 
-RGI_WELLs_dict = interpolate_all_wells(data_path,df)
-print('RGI for each well with given data is:\n', RGI_WELLs_dict)
+RGI_WELLs_dict,wells_interpolate_obj = interpolate_all_wells(data_path,df)

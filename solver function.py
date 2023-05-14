@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from interpolate_six_files import RGI_WELLs_dict
+from interpolate_six_files import wells_interpolate_obj
 
 J = [16.512,16.49,16.49,1.66,1.66,1.663] # STB/d/psi
 PR = [238.88,256.11,256.11,209.64,209.64,209.64] # psi
@@ -11,7 +11,7 @@ def well_production(GLR,WC,GOR,WHP,J,PR,RGI_well):
     alpha = 0.1
     while True:
         # Find BHP from tubing table
-        BHP_VLP = RGI_well
+        BHP_VLP = RGI_well([WHP,GOR,WC,GLR,Q])
         # fing BHP from IPR
         BHP_IPR = PR - Q / J
 
@@ -32,10 +32,9 @@ df = pd.read_csv('Data_for_Interpolation.csv')
 
 for num_well in range(6): # 6 for six json file
     print(f'well number {num_well+1}---------------------------------')
-    RGI_well_list = list(RGI_WELLs_dict.values())[num_well]
+    interpolate_obj = wells_interpolate_obj[num_well]
     for num_row in range(len(df.index)):
         print(f'row number {num_row}')
         Q, GLR, WC, GOR, WHP = df.values.tolist()[num_row]
-        RGI_well = RGI_well_list[num_row]
-        qo,qg,qw = well_production(GLR, WC, GOR, WHP,J[num_well],PR[num_well],RGI_well)
+        qo,qg,qw = well_production(GLR, WC, GOR, WHP,J[num_well],PR[num_well],interpolate_obj)
 
