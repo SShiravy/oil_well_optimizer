@@ -19,10 +19,10 @@ def interpolate_all_wells(data_path,df):
         # interpolate each row of df
         RGI_well = []
         print(data_file,'--',free_vars)
-        for row in df.values.tolist():
+        for row in df.values:
             # (Q,QGL,WC,GOR,WHP)
             wells_interpolate_obj.append(result)
-            RGI = result(row)
+            RGI = result(row[::-1])
             RGI_well.append(RGI)
 
         print(RGI_well,'\n')
