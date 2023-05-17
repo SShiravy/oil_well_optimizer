@@ -8,8 +8,10 @@ class Interpolation:
         self.free_vars =free_vars
         self.tpd_res = tpd_res
         self.tpd_res_unit_converted = []
-        self.data = None
+        self.reshaped_tpd_res = None
         self.pnts = None
+        self.result = None
+        self.well_RGIs = []
 
     # unit_list = ['Rate values', 'GL rate', 'WC', 'GOR', 'Pressure'] #Have to have same length as number of free variables.
     def convert_points(self, list_2bconverted, alpha, beta):
@@ -60,16 +62,54 @@ class Interpolation:
             points.append(new_arr)
         self.pnts = tuple(points)
 
-    def get_data(self):  # Get data to the points defined: Columns in TPS Res. This data should be on the regular grid in n dimensions (by def for interpolator)
+    def get_data(self):  # Get reshaped_tpd_res to the points defined: Columns in TPS Res. This reshaped_tpd_res should be on the regular grid in n dimensions (by def for interpolator)
         self.tpd_res_unit_converted = (self.tpd_res.to_numpy() + 14.696) * 0.06894
         # The conversion under only works for col=0
-        self.data = np.reshape(self.tpd_res_unit_converted, newshape=(
+        self.reshaped_tpd_res = np.reshape(self.tpd_res_unit_converted, newshape=(
         len(self.pnts[0]), len(self.pnts[1]), len(self.pnts[2]), len(self.pnts[3]), len(self.pnts[4])))
 
 
     # Intepolate using linear interpolation
-    def do_interpolation(self):
+    def config_interpolation(self):
         self.get_points()
         self.get_data()
-        self.result = irp.RegularGridInterpolator(points=self.pnts, values=self.data, method="cubic")
+        self.result = irp.RegularGridInterpolator(points=self.pnts, values=self.reshaped_tpd_res, method="cubic")
         return self.result
+
+    def interpolate(self,df):
+        # interpolate each row of df
+        self.well_RGIs = self.result(df.values)
+        return self.well_RGIs
+
+    def solver(self,df,J,PR):
+        qw = []
+        qo = []
+        qg = []
+        for num_row in range(len(df.index)):
+            print(f'row number {num_row}')
+            # assuming a Q
+            Q = 1000
+            alpha = 0.01
+            row = df.values[num_row]
+            row = np.insert(row,-1,Q,)[:-1]
+            print(row)
+            while True:
+                # Find BHP from tubing table
+                row = np.insert(row, -1, Q, )[:-1]
+                BHP_VLP = self.result(row)
+                BHP_IPR = PR - Q / J
+                print(Q)
+                # Gradient Decent : Q - d/dQ f(Q) ; f(Q)= (BHP_VLP - BHP_IPR)^2
+                Q = Q - alpha * (-2 / J * (BHP_IPR - BHP_VLP))
+                print('BHP_IPR-BHP_VLP:', BHP_IPR - BHP_VLP)
+
+                if abs(BHP_IPR - BHP_VLP) < 1e-2:
+                    print('BHP_IPR-BHP_VLP:', BHP_IPR - BHP_VLP)
+                    print('Q:', Q)
+                    break
+
+            qw.append(Q * (1 - WC))
+            qo.append(1 - qw)
+            qg.append(qo * GOR + GLR)
+
+        return (qo, qg, qw)

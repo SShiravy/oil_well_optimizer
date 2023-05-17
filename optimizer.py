@@ -18,7 +18,7 @@ class optimize:
     def pressure_constraint(self, x, LR, BHP, GOR, WC, pressure_cons_val): #Constraint on minimum 20 bar pressure
         GLR = x[0]
         input_val = (BHP, GOR, WC, GLR, LR) #TNP, GOR, WC and LR are set constant to find optimal GLrate to minimize WHP. Values: 120, 91, 50, GLR, 2000
-        interpol = self.file.do_interpolation() #Col 0 = WHP
+        interpol = self.file.config_interpolation() #Col 0 = WHP
         res = interpol(input_val)
         cons = res - pressure_cons_val
         return cons
@@ -72,7 +72,7 @@ class optimize:
         GLR = x[1]
         LR = OR/(1-(WC/100)) #LR expressed by OR (the free variable)
         input_val = (BHP, GOR, WC, GLR, LR) #TNP, GOR, WC are constants
-        interpol = self.file.do_interpolation() #Col 0 = WHP
+        interpol = self.file.config_interpolation() #Col 0 = WHP
         res = interpol(input_val)
         cons = res - pressure_cons_val
         return cons
@@ -100,7 +100,7 @@ class optimize:
         LR = x[2*counter]/(1-(WC[counter]/100)) #LR expressed by OR (the free variable)
         GLR = x[2*counter + 1]
         input_val = (WHP[counter], GOR[counter], WC[counter], GLR, LR) #TNP, GOR, WC are constants
-        interpol = self.file.do_interpolation() #Col 0 = WHP
+        interpol = self.file.config_interpolation() #Col 0 = WHP
         res = interpol(input_val)
         cons = res - pressure_cons_val[0]
         return cons
