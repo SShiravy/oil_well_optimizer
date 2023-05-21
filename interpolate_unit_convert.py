@@ -1,6 +1,7 @@
 # This interpolator includes convertion of the units
 from scipy import interpolate as irp
 import numpy as np
+from scipy.optimize import fsolve
 
 
 class Interpolation:
@@ -81,35 +82,31 @@ class Interpolation:
         self.well_RGIs = self.result(df.values)
         return self.well_RGIs
 
-    def solver(self,df,J,PR):
-        qw = []
-        qo = []
-        qg = []
-        for num_row in range(len(df.index)):
-            print(f'row number {num_row}')
-            # assuming a Q
-            Q = 1000
-            alpha = 0.01
-            row = df.values[num_row]
-            row = np.insert(row,-1,Q,)[:-1]
-            print(row)
-            while True:
-                # Find BHP from tubing table
-                row = np.insert(row, -1, Q, )[:-1]
-                BHP_VLP = self.result(row)
-                BHP_IPR = PR - Q / J
-                print(Q)
-                # Gradient Decent : Q - d/dQ f(Q) ; f(Q)= (BHP_VLP - BHP_IPR)^2
-                Q = Q - alpha * (-2 / J * (BHP_IPR - BHP_VLP))
-                print('BHP_IPR-BHP_VLP:', BHP_IPR - BHP_VLP)
+    def solver(self,data,J,PR):
+        Q = 100
+        while True:
+            data = np.insert(data, -1, Q)[:-1]
+            try:
+                BHP_VLP = self.result(data)
+            except:
+                return None
+            BHP_IPR = PR-Q/J
+            print(data,f'VLP:{BHP_VLP}-IPR:{BHP_IPR}={BHP_VLP-BHP_IPR}')
+            Q+=0.1*(BHP_IPR-BHP_VLP)
+            if abs(BHP_IPR-BHP_VLP)<1e-6:
+                print(data)
+                qw = Q*(1-data[2]) # Q*(1-WC)
+                qo = Q-qw
+                qg = qo*data[1]+data[-2] # qo*GOR+GLR
+                return qo,qg,qw
 
-                if abs(BHP_IPR - BHP_VLP) < 1e-2:
-                    print('BHP_IPR-BHP_VLP:', BHP_IPR - BHP_VLP)
-                    print('Q:', Q)
-                    break
 
-            qw.append(Q * (1 - WC))
-            qo.append(1 - qw)
-            qg.append(qo * GOR + GLR)
 
-        return (qo, qg, qw)
+
+
+
+
+
+
+
+
