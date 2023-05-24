@@ -1,7 +1,7 @@
 # This interpolator includes convertion of the units
 from scipy import interpolate as irp
 import numpy as np
-from scipy.optimize import fsolve
+from scipy.optimize import minimize,fsolve
 
 
 class Interpolation:
@@ -82,31 +82,25 @@ class Interpolation:
         self.well_RGIs = self.result(df.values)
         return self.well_RGIs
 
-    def solver(self,data,J,PR):
-        Q = 100
-        while True:
-            data = np.insert(data, -1, Q)[:-1]
-            try:
-                BHP_VLP = self.result(data)
-            except:
-                return None
-            BHP_IPR = PR-Q/J
-            print(data,f'VLP:{BHP_VLP}-IPR:{BHP_IPR}={BHP_VLP-BHP_IPR}')
-            Q+=0.1*(BHP_IPR-BHP_VLP)
-            if abs(BHP_IPR-BHP_VLP)<1e-6:
-                print(data)
-                qw = Q*(1-data[2]) # Q*(1-WC)
-                qo = Q-qw
-                qg = qo*data[1]+data[-2] # qo*GOR+GLR
-                return qo,qg,qw
+    def solver(self,input_data,J,PR):
+        qw,qo,qg = 0,0,0
+        Q = 1000
+        bigest_Q = 0
+        for free_vars in input_data:
+            free_vars = np.insert(free_vars, -1, Q)[:-1]
+            print('free variables:',free_vars)
+            def difference(Q):
+                BHP_VLP = self.result(free_vars)
+                BHP_IPR = PR - Q / J
+                # print(BHP_IPR-BHP_VLP)
+                return abs(BHP_IPR-BHP_VLP)
 
+            result = minimize(difference,Q,method='BFGS')
+            print('result',result)
+            if result['success'] and bigest_Q<result['x'][0]:
+                bigest_Q = result['x'][0]
+                qw = Q * (1 - free_vars[2] / 100)  # Q*(1-WC/100)
+                qo = Q - qw
+                qg = qo * free_vars[1] + free_vars[-2] * 10 ** 3  # qo*GOR+GLR*10^3
 
-
-
-
-
-
-
-
-
-
+        return np.array([qo,qg,qw])
