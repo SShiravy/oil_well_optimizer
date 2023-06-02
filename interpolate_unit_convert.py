@@ -2,7 +2,7 @@
 from scipy import interpolate as irp
 import numpy as np
 from scipy.optimize import minimize,fsolve
-
+import matplotlib.pyplot as plt
 
 class Interpolation:
     def __init__(self,free_vars,tpd_res):
@@ -74,7 +74,7 @@ class Interpolation:
     def config_interpolation(self):
         self.get_points()
         self.get_data()
-        self.result = irp.RegularGridInterpolator(points=self.pnts, values=self.reshaped_tpd_res, method="cubic")
+        self.result = irp.RegularGridInterpolator(points=self.pnts, values=self.reshaped_tpd_res, method="linear")
         return self.result
 
     def interpolate(self,df):
@@ -92,15 +92,31 @@ class Interpolation:
             def difference(Q):
                 BHP_VLP = self.result(free_vars)
                 BHP_IPR = PR - Q / J
-                # print(BHP_IPR-BHP_VLP)
-                return abs(BHP_IPR-BHP_VLP)
+                return abs(BHP_IPR[0]-BHP_VLP[0])
 
             result = minimize(difference,Q,method='BFGS')
-            print('result',result)
-            if result['success'] and bigest_Q<result['x'][0]:
-                bigest_Q = result['x'][0]
-                qw = Q * (1 - free_vars[2] / 100)  # Q*(1-WC/100)
-                qo = Q - qw
-                qg = qo * free_vars[1] + free_vars[-2] * 10 ** 3  # qo*GOR+GLR*10^3
+            print(f'Q: {result["x"]} --> BHP: {self.result(np.insert(free_vars, -1, result["x"])[:-1])}',result)
+            #
+            # if result['x'][0]>bigest_Q and free_vars[2]!=0:
+            #     bigest_Q = result['x'][0]
+            #     qw = bigest_Q * (1 - free_vars[2] / 100)  # Q*(1-WC/100)
+            #     qo = bigest_Q - qw
+            #     qg = qo * free_vars[1] + free_vars[-2] * 10 ** 3  # qo*GOR+GLR*10^3
 
-        return np.array([qo,qg,qw])
+        # return np.array([round(qo,2),round(qg,2),round(qw,2)]) , bigest_Q
+
+    def plot_BHP(self,input_data,J,PR):
+        for free_vars in input_data:
+            BHP_VLP,BHP_IPR=[],[]
+            Q_list = np.array(range(300, 3000))
+            for Q in Q_list:
+                free_vars = np.insert(free_vars, -1, Q)[:-1]
+                BHP_VLP.append(self.result(free_vars)[0])
+                BHP_IPR.append(PR - Q / J)
+
+            print('free variables:', free_vars,'\n')
+            print(f'1--IPR:{np.array(BHP_IPR[1022])}\nQ:{Q_list[1022]}\nVLP:{np.array(BHP_VLP[1022])}')
+            print(f'2--IPR:{np.array(BHP_IPR[74])}\nQ:{Q_list[74]}\nVLP:{np.array(BHP_VLP[74])}')
+            plt.plot(Q_list, BHP_VLP, color='blue')
+            plt.plot(Q_list, BHP_IPR, color='red')
+            plt.show()
