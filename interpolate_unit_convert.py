@@ -93,7 +93,7 @@ class Interpolation:
                 BHP_IPR = PR - Q / J
                 return abs(BHP_IPR[0]-BHP_VLP[0])
 
-            result = minimize(difference,Q,method='BFGS')
+            result = minimize(difference,Q,method='Newton-CG')
             print(f'Q: {result["x"]} --> BHP: {self.result(np.insert(free_vars, -1, result["x"])[:-1])}',result)
 
 
