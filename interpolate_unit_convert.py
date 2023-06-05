@@ -1,7 +1,7 @@
 # This interpolator includes convertion of the units
 from scipy import interpolate as irp
 import numpy as np
-from scipy.optimize import minimize,fsolve
+from scipy.optimize import minimize,Bounds
 import matplotlib.pyplot as plt
 
 class Interpolation:
@@ -93,7 +93,7 @@ class Interpolation:
                 BHP_IPR = PR - Q / J
                 return abs(BHP_IPR[0]-BHP_VLP[0])
 
-            result = minimize(difference,Q,method='Newton-CG')
+            result = minimize(difference,Q,method='BFGS')
             print(f'Q: {result["x"]} --> BHP: {self.result(np.insert(free_vars, -1, result["x"])[:-1])}',result)
 
 
@@ -105,16 +105,18 @@ class Interpolation:
             def difference(QGL):
                 new_free = np.insert(free_vars, -2, QGL)
                 new_free = np.delete(new_free, -2)
-                print(new_free)
                 BHP_VLP = self.result(new_free)
                 BHP_IPR = PR - free_vars[-1] / J
                 return abs(BHP_IPR - BHP_VLP[0])
 
-            result = minimize(difference, QGL, method='BFGS')
+            result = minimize(difference, QGL,bounds=Bounds(0,14000), method='Nelder-Mead')
             if result['x']>0 and free_vars[-1]>bigest_Q:
-                qw = bigest_Q * (1 - free_vars[2] / 100)  # Q*(1-WC/100)
+                bigest_Q = free_vars[-1]
+                qw = bigest_Q * (free_vars[2] / 100)  # Q*(1-WC/100)
                 qo = bigest_Q - qw
                 qg = qo * free_vars[1] + free_vars[-2] * 10 ** 3  # qo*GOR+GLR*10^3
+                print(qw,qo,qg,bigest_Q,result)
+
 
         return np.array([round(qo, 4), round(qg, 4), round(qw, 4)])
 
