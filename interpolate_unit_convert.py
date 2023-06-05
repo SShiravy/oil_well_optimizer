@@ -83,7 +83,6 @@ class Interpolation:
         return self.well_RGIs
 
     def solver(self,input_data,J,PR):
-        qw,qo,qg = 0,0,0
         Q = 1000
         bigest_Q = 0
         for free_vars in input_data:
@@ -96,14 +95,28 @@ class Interpolation:
 
             result = minimize(difference,Q,method='BFGS')
             print(f'Q: {result["x"]} --> BHP: {self.result(np.insert(free_vars, -1, result["x"])[:-1])}',result)
-            #
-            # if result['x'][0]>bigest_Q and free_vars[2]!=0:
-            #     bigest_Q = result['x'][0]
-            #     qw = bigest_Q * (1 - free_vars[2] / 100)  # Q*(1-WC/100)
-            #     qo = bigest_Q - qw
-            #     qg = qo * free_vars[1] + free_vars[-2] * 10 ** 3  # qo*GOR+GLR*10^3
 
-        # return np.array([round(qo,2),round(qg,2),round(qw,2)]) , bigest_Q
+
+    def fields_params(self,input_data,J,PR):
+        qw,qo,qg = 0,0,0
+        QGL = 0
+        bigest_Q = 0
+        for free_vars in input_data:
+            def difference(QGL):
+                new_free = np.insert(free_vars, -2, QGL)
+                new_free = np.delete(new_free, -2)
+                print(new_free)
+                BHP_VLP = self.result(new_free)
+                BHP_IPR = PR - free_vars[-1] / J
+                return abs(BHP_IPR - BHP_VLP[0])
+
+            result = minimize(difference, QGL, method='BFGS')
+            if result['x']>0 and free_vars[-1]>bigest_Q:
+                qw = bigest_Q * (1 - free_vars[2] / 100)  # Q*(1-WC/100)
+                qo = bigest_Q - qw
+                qg = qo * free_vars[1] + free_vars[-2] * 10 ** 3  # qo*GOR+GLR*10^3
+
+        return np.array([round(qo, 4), round(qg, 4), round(qw, 4)])
 
     def plot_BHP(self,input_data,J,PR):
         for free_vars in input_data:
@@ -114,9 +127,7 @@ class Interpolation:
                 BHP_VLP.append(self.result(free_vars)[0])
                 BHP_IPR.append(PR - Q / J)
 
-            print('free variables:', free_vars,'\n')
-            print(f'1--IPR:{np.array(BHP_IPR[1022])}\nQ:{Q_list[1022]}\nVLP:{np.array(BHP_VLP[1022])}')
-            print(f'2--IPR:{np.array(BHP_IPR[74])}\nQ:{Q_list[74]}\nVLP:{np.array(BHP_VLP[74])}')
+            print('plot for free variables:', free_vars,'\n')
             plt.plot(Q_list, BHP_VLP, color='blue')
             plt.plot(Q_list, BHP_IPR, color='red')
             plt.show()
