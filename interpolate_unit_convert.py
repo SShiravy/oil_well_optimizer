@@ -28,35 +28,35 @@ class Interpolation:
         points = []
         for var in list(self.free_vars.keys())[::-1]:
             if var == 'Rate values':
-                points_dict = self.free_vars.get(
+                point_free_var = self.free_vars.get(
                     'Rate values')  # Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
-                df_to_arr = np.array(points_dict)  # Converts df to numpy array
+                df_to_arr = np.array(point_free_var)  # Converts df to numpy array
                 df_to_arr_converted = self.convert_points(df_to_arr, 0, 0.158987294928)
                                                            # Multiplication for rate values unit conversion
                 new_arr = df_to_arr_converted.flatten()
             elif var == 'GL rate':
-                points_dict = self.free_vars.get(
+                point_free_var = self.free_vars.get(
                     'GL rate')  # Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
-                df_to_arr = np.array(points_dict)  # Converts df to numpy array
+                df_to_arr = np.array(point_free_var)  # Converts df to numpy array
                 df_to_arr_converted = self.convert_points(df_to_arr, 0, 28.17397429124846)
                                                            # Multiplication for GL rate unit conversion
                 new_arr = df_to_arr_converted.flatten()
             elif var == 'WC':  # NO conversion for WC
-                points_dict = self.free_vars.get(
+                point_free_var = self.free_vars.get(
                     'WC')  # Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
-                df_to_arr = np.array(points_dict)  # Converts df to numpy array
+                df_to_arr = np.array(point_free_var)  # Converts df to numpy array
                 new_arr = df_to_arr.flatten()
             elif var == 'GOR':
-                points_dict = self.free_vars.get(
+                point_free_var = self.free_vars.get(
                     'GOR')  # Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
-                df_to_arr = np.array(points_dict)  # Converts df to numpy array
+                df_to_arr = np.array(point_free_var)  # Converts df to numpy array
                 df_to_arr_converted = self.convert_points(df_to_arr, 0, 0.17810760667903525)
                                                             # Multiplication for GOR unit conversion
                 new_arr = df_to_arr_converted.flatten()
             elif var == 'Pressure':
-                points_dict = self.free_vars.get(
+                point_free_var = self.free_vars.get(
                     'Pressure')  # Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
-                df_to_arr = np.array(points_dict)  # Converts df to numpy array
+                df_to_arr = np.array(point_free_var)  # Converts df to numpy array
                 df_to_arr_converted = self.convert_points(df_to_arr, 14.696, 0.0689475729)
                                                             # Multiplication for top node pressure unit conversion (and addition of 1)
                 new_arr = df_to_arr_converted.flatten()
@@ -82,31 +82,42 @@ class Interpolation:
         self.well_RGIs = self.result(df.values)
         return self.well_RGIs
 
-    def solver(self,input_data,J,PR):
+    def solver(self,input_data,J,Pr,Pb,vogel):
         Q = 1000
-        bigest_Q = 0
         for free_vars in input_data:
             free_vars = np.insert(free_vars, -1, Q)[:-1]
+            qb = J * (Pr - Pb)
+            q_max = qb + J * Pb / 1.8
             print('free variables:',free_vars)
             def difference(Q):
                 BHP_VLP = self.result(free_vars)
-                BHP_IPR = PR - Q / J
-                return abs(BHP_IPR[0]-BHP_VLP[0])
+                if vogel:
+                    BHP_IPR = 0.125*Pr*(-1+(81-80*(Q/q_max))**(1/2))
+                else:
+                    BHP_IPR = 0.125*Pb*(-1+(81-80*((Q-qb)/(q_max-qb)))**(1/2))
+
+                return abs(BHP_IPR-BHP_VLP[0])
 
             result = minimize(difference,Q,method='BFGS')
             print(f'Q: {result["x"]} --> BHP: {self.result(np.insert(free_vars, -1, result["x"])[:-1])}',result)
 
 
-    def fields_params(self,input_data,J,PR):
+    def fields_params(self,input_data,J,Pr,Pb,vogel):
         qw,qo,qg = 0,0,0
         QGL = 0
         bigest_Q = 0
+        qb = j * (Pr - Pb)
+        q_max = qb + j * Pb / 1.8
         for free_vars in input_data:
             def difference(QGL):
                 new_free = np.insert(free_vars, -2, QGL)
                 new_free = np.delete(new_free, -2)
                 BHP_VLP = self.result(new_free)
-                BHP_IPR = PR - free_vars[-1] / J
+                if vogel:
+                    BHP_IPR = 0.125 * Pr * (-1 + (81 - 80 * (Q / q_max)) ** (1 / 2))
+                else:
+                    BHP_IPR = 0.125 * Pb * (-1 + (81 - 80 * ((Q - qb) / (q_max - qb))) ** (1 / 2))
+
                 return abs(BHP_IPR - BHP_VLP[0])
 
             result = minimize(difference, QGL,bounds=Bounds(0,14000), method='Nelder-Mead')
@@ -120,15 +131,21 @@ class Interpolation:
 
         return np.array([round(qo, 4), round(qg, 4), round(qw, 4)])
 
-    def plot_BHP(self,input_data,J,PR):
+    def plot_BHP(self,input_data,J,Pr,Pb,vogel):
         for free_vars in input_data:
             BHP_VLP,BHP_IPR=[],[]
             Q_list = np.array(range(300, 3000))
+            qb = J * (Pr - Pb)
+            q_max = qb + J * Pb / 1.8
             for Q in Q_list:
                 free_vars = np.insert(free_vars, -1, Q)[:-1]
                 BHP_VLP.append(self.result(free_vars)[0])
-                BHP_IPR.append(PR - Q / J)
-
+                if vogel:
+                    ipr = 0.125 * Pr * (-1 + (81 - 80 * (Q / q_max)) ** (1 / 2))
+                    BHP_IPR.append(ipr) if ipr>0 else BHP_IPR.append(0)
+                else:
+                    ipr = 0.125 * Pb * (-1 + (81 - 80 * ((Q - qb) / (q_max - qb))) ** (1 / 2))
+                    BHP_IPR.append(ipr) if ipr>0 else BHP_IPR.append(0)
             print('plot for free variables:', free_vars,'\n')
             plt.plot(Q_list, BHP_VLP, color='blue')
             plt.plot(Q_list, BHP_IPR, color='red')

@@ -28,3 +28,6 @@ for data_file in os.listdir(data_path)[:]:
 qo,qg,qw = sum(list(field_paramteres_dict.values()))
 print(f'qo:{qo}, qg:{qg}, qw:{qw}')
 
+
+
+
