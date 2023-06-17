@@ -82,7 +82,7 @@ class Interpolation:
         self.well_RGIs = self.result(df.values)
         return self.well_RGIs
 
-    def solver(self,input_data,J,Pr,Pb,vogel):
+    def well_production(self,input_data,J,Pr,Pb,vogel):
         Q = 1000
         for free_vars in input_data:
             free_vars = np.insert(free_vars, -1, Q)[:-1]
@@ -106,12 +106,13 @@ class Interpolation:
         qw,qo,qg = 0,0,0
         QGL = 0
         bigest_Q = 0
-        qb = j * (Pr - Pb)
-        q_max = qb + j * Pb / 1.8
+        qb = J * (Pr - Pb)
+        q_max = qb + J * Pb / 1.8
         for free_vars in input_data:
             def difference(QGL):
                 new_free = np.insert(free_vars, -2, QGL)
                 new_free = np.delete(new_free, -2)
+                Q = free_vars[-1]
                 BHP_VLP = self.result(new_free)
                 if vogel:
                     BHP_IPR = 0.125 * Pr * (-1 + (81 - 80 * (Q / q_max)) ** (1 / 2))
@@ -127,7 +128,6 @@ class Interpolation:
                 qo = bigest_Q - qw
                 qg = qo * free_vars[1] + free_vars[-2] * 10 ** 3  # qo*GOR+GLR*10^3
                 print(qw,qo,qg,bigest_Q,result)
-
 
         return np.array([round(qo, 4), round(qg, 4), round(qw, 4)])
 
