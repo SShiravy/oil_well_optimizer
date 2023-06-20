@@ -1,4 +1,6 @@
-DATA_PATH = 'wells data'
+DATA_PATH = 'wells data' # directory of json files
+
+INTERPOLATE_METHOD = "linear" # or cubic
 
 J = [18.76,19.58,19.58,3.71,3.75,3.79] # Sm3/day/bar
 PR = [238.882,235.435,235.435,173.382,163.04,152.69791] # bara

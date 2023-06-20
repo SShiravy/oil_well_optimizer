@@ -3,6 +3,8 @@ from scipy import interpolate as irp
 import numpy as np
 from scipy.optimize import minimize,Bounds
 import matplotlib.pyplot as plt
+from config import INTERPOLATE_METHOD
+from math import sqrt
 
 class Interpolation:
     def __init__(self,free_vars,tpd_res):
@@ -74,7 +76,7 @@ class Interpolation:
     def config_interpolation(self):
         self.get_points()
         self.get_data()
-        self.result = irp.RegularGridInterpolator(points=self.pnts, values=self.reshaped_tpd_res, method="linear")
+        self.result = irp.RegularGridInterpolator(points=self.pnts, values=self.reshaped_tpd_res, method=INTERPOLATE_METHOD)
         return self.result
 
     def interpolate(self,df):
@@ -83,31 +85,56 @@ class Interpolation:
         return self.well_RGIs
 
     def well_production(self,input_data,J,Pr,Pb,vogel):
-        Q = 1000
+        '''
+        this method calculate qo,qw,qg using given inputs
+        where we have bigest Q of the intersection between IPR and VLP
+        '''
+
+        # initialization
+        WHP, GOR, WC, QGL, Q = 0,0,0,0,300
+        bigest_Q = 0
+        qo,qg,qw = 0,0,0
+        any_intersection = False
+        # task 5 :
         for free_vars in input_data:
-            free_vars = np.insert(free_vars, -1, Q)[:-1]
             qb = J * (Pr - Pb)
-            q_max = qb + J * Pb / 1.8
-            print('free variables:',free_vars)
+            q_max = qb + (J * Pb) / 1.8
             def difference(Q):
-                BHP_VLP = self.result(free_vars)
+                new_free_vars = np.insert(free_vars, -1, Q)[:-1]
+                BHP_VLP = self.result(new_free_vars)
                 if vogel:
-                    BHP_IPR = 0.125*Pr*(-1+(81-80*(Q/q_max))**(1/2))
+                    BHP_IPR = 0.125*Pr*(-1+sqrt(81-80*(Q/q_max)))
                 else:
-                    BHP_IPR = 0.125*Pb*(-1+(81-80*((Q-qb)/(q_max-qb)))**(1/2))
+                    BHP_IPR = 0.125*Pb*(-1+sqrt(81-80*((Q-qb)/(q_max-qb))))
 
                 return abs(BHP_IPR-BHP_VLP[0])
 
-            result = minimize(difference,Q,method='BFGS')
-            print(f'Q: {result["x"]} --> BHP: {self.result(np.insert(free_vars, -1, result["x"])[:-1])}',result)
+            # we should specify the bounds parameter to avoid 'out of boundary' error when calculate VLP
+            result = minimize(difference,Q,bounds=Bounds(64,3000),method='Nelder-Mead')
 
+            if result['x']>bigest_Q:
+                any_intersection = True
+                bigest_Q = result['x']
+                WHP, GOR, WC, QGL, _ = free_vars
+                qw = bigest_Q*(1-WC) # Q*(1-WC)
+                qo = bigest_Q-qw # Q-qw
+                qg = qo*GOR+QGL
+
+        if any_intersection:
+            print(f'WHP:{WHP}, GOR:{GOR}, WC:{WC}, QGL:{QGL}, Q:{bigest_Q}\n--->> qo:{qo}, qw:{qw}, qg:{qg}\n')
+        else:
+            print('there is no intersection between IPR & VLP')
 
     def fields_params(self,input_data,J,Pr,Pb,vogel):
-        qw,qo,qg = 0,0,0
-        QGL = 0
+        # initialization
+        WHP, GOR, WC, QGL, Q = 0,0,0,0,0
         bigest_Q = 0
+        qo,qg,qw = 0,0,0
+        any_intersection = False
+        # calculate qb and q max
         qb = J * (Pr - Pb)
         q_max = qb + J * Pb / 1.8
+        # task 7 :
         for free_vars in input_data:
             def difference(QGL):
                 new_free = np.insert(free_vars, -2, QGL)
@@ -122,31 +149,39 @@ class Interpolation:
                 return abs(BHP_IPR - BHP_VLP[0])
 
             result = minimize(difference, QGL,bounds=Bounds(0,14000), method='Nelder-Mead')
+
             if result['x']>0 and free_vars[-1]>bigest_Q:
-                bigest_Q = free_vars[-1]
-                qw = bigest_Q * (free_vars[2] / 100)  # Q*(1-WC/100)
-                qo = bigest_Q - qw
-                qg = qo * free_vars[1] + free_vars[-2] * 10 ** 3  # qo*GOR+GLR*10^3
-                print(qw,qo,qg,bigest_Q,result)
+                QGL = result['x']
+                WHP, GOR, WC, _, bigest_Q = free_vars
+                qw = bigest_Q * (WC / 100)  # Q*(WC/100)
+                qo = bigest_Q - qw # Q-qw
+                qg = qo * GOR + QGL * 10 ** 3  # qo*GOR+GLR*10^3
+
+        if any_intersection:
+            print(f'WHP:{WHP}, GOR:{GOR}, WC:{WC}, QGL:{QGL}, Q:{bigest_Q}\n--->> qo:{qo}, qw:{qw}, qg:{qg}\n')
+        else:
+            print('there is no intersection between IPR & VLP')
 
         return np.array([round(qo, 4), round(qg, 4), round(qw, 4)])
 
     def plot_BHP(self,input_data,J,Pr,Pb,vogel):
         for free_vars in input_data:
             BHP_VLP,BHP_IPR=[],[]
-            Q_list = np.array(range(300, 3000))
+            Q_list = np.array(range(64, 3000))
             qb = J * (Pr - Pb)
             q_max = qb + J * Pb / 1.8
             for Q in Q_list:
                 free_vars = np.insert(free_vars, -1, Q)[:-1]
                 BHP_VLP.append(self.result(free_vars)[0])
-                if vogel:
-                    ipr = 0.125 * Pr * (-1 + (81 - 80 * (Q / q_max)) ** (1 / 2))
-                    BHP_IPR.append(ipr) if ipr>0 else BHP_IPR.append(0)
-                else:
-                    ipr = 0.125 * Pb * (-1 + (81 - 80 * ((Q - qb) / (q_max - qb))) ** (1 / 2))
-                    BHP_IPR.append(ipr) if ipr>0 else BHP_IPR.append(0)
-            print('plot for free variables:', free_vars,'\n')
+                try:
+                    if vogel:
+                        ipr = 0.125 * Pr * (-1 + sqrt(81 - 80 * (Q / q_max)))
+                    else:
+                        ipr = 0.125 * Pb * (-1 + sqrt(81 - 80 * ((Q - qb) / (q_max - qb))))
+                except:
+                    ipr = 0
+                BHP_IPR.append(ipr) if ipr>0 else BHP_IPR.append(0)
+            print('plot for free variables:',free_vars)
             plt.plot(Q_list, BHP_VLP, color='blue')
             plt.plot(Q_list, BHP_IPR, color='red')
             plt.show()

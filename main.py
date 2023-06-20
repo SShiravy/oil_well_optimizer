@@ -1,7 +1,7 @@
 import os
 import time
 from optimizer import optimize
-from read_function import read_json_data
+from read_module import read_json_data
 from interpolate_unit_convert import Interpolation
 ## Run optimizer from this script
 start = time.time()
