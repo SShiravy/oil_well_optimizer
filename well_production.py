@@ -3,7 +3,6 @@ from read_module import read_json_data
 from interpolate_unit_convert import Interpolation
 from config import *
 
-# TODO: permutation on all points
 
 i = 0 # for iterate J and PR
 for data_file in os.listdir(DATA_PATH)[:]:
