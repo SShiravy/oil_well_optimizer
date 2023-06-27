@@ -94,6 +94,7 @@ class Interpolation:
         # initialization
         WHP, GOR, WC, QGL, Q = 0,0,0,0,300
         bigest_Q = 0
+        BHP_bigest_Q = 0
         qo,qg,qw = 0,0,0
         any_intersection = False
         # task 5 :
@@ -118,13 +119,15 @@ class Interpolation:
             if result['x']>bigest_Q:
                 any_intersection = True
                 bigest_Q = result['x']
+                new_free_vars = np.insert(free_vars, -1, bigest_Q)[:-1]
+                BHP_bigest_Q = self.result(new_free_vars)
                 WHP, GOR, WC, QGL, _ = free_vars
                 qw = bigest_Q*(1-WC) # Q*(1-WC)
                 qo = bigest_Q-qw # Q-qw
                 qg = qo*GOR+QGL
 
         if any_intersection:
-            print(f'WHP:{WHP}, GOR:{GOR}, WC:{WC}, QGL:{QGL}, Q:{bigest_Q[0]}\n--->> qo:{qo}, qw:{qw}, qg:{qg}\n')
+            print(f'WHP:{WHP}, GOR:{GOR}, WC:{WC}, QGL:{QGL}, Q:{bigest_Q[0]} ==>> BHP:{BHP_bigest_Q}\n--->> qo:{qo}, qw:{qw}, qg:{qg}\n')
         else:
             print('there is no intersection between IPR & VLP')
 
