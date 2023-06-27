@@ -3,8 +3,9 @@ from scipy import interpolate as irp
 import numpy as np
 from scipy.optimize import minimize,Bounds
 import matplotlib.pyplot as plt
-from config import INTERPOLATE_METHOD
+from config import INTERPOLATE_METHOD,unit_convert_coefficient,unit_convert_intercept
 from math import sqrt
+
 
 class Interpolation:
     def __init__(self,free_vars,tpd_res):
@@ -97,6 +98,7 @@ class Interpolation:
         any_intersection = False
         # task 5 :
         for free_vars in input_data:
+            free_vars = (np.array(free_vars)+unit_convert_intercept)*unit_convert_coefficient
             qb = J * (Pr - Pb)
             q_max = qb + (J * Pb) / 1.8
             def difference(Q):
@@ -111,7 +113,8 @@ class Interpolation:
 
             # we should specify the bounds parameter to avoid 'out of boundary' error when calculate VLP
             result = minimize(difference,Q,bounds=Bounds(64,3000),method='Nelder-Mead')
-
+            # print(free_vars,'\n',result)
+            # if the Q in intersection point is the bigest one then :
             if result['x']>bigest_Q:
                 any_intersection = True
                 bigest_Q = result['x']
@@ -121,7 +124,7 @@ class Interpolation:
                 qg = qo*GOR+QGL
 
         if any_intersection:
-            print(f'WHP:{WHP}, GOR:{GOR}, WC:{WC}, QGL:{QGL}, Q:{bigest_Q}\n--->> qo:{qo}, qw:{qw}, qg:{qg}\n')
+            print(f'WHP:{WHP}, GOR:{GOR}, WC:{WC}, QGL:{QGL}, Q:{bigest_Q[0]}\n--->> qo:{qo}, qw:{qw}, qg:{qg}\n')
         else:
             print('there is no intersection between IPR & VLP')
 
@@ -133,9 +136,10 @@ class Interpolation:
         any_intersection = False
         # calculate qb and q max
         qb = J * (Pr - Pb)
-        q_max = qb + J * Pb / 1.8
+        q_max = qb + (J * Pb) / 1.8
         # task 7 :
         for free_vars in input_data:
+            free_vars = (np.array(free_vars)+unit_convert_intercept)*unit_convert_coefficient
             def difference(QGL):
                 new_free = np.insert(free_vars, -2, QGL)
                 new_free = np.delete(new_free, -2)
@@ -155,7 +159,7 @@ class Interpolation:
                 WHP, GOR, WC, _, bigest_Q = free_vars
                 qw = bigest_Q * (WC / 100)  # Q*(WC/100)
                 qo = bigest_Q - qw # Q-qw
-                qg = qo * GOR + QGL * 10 ** 3  # qo*GOR+GLR*10^3
+                qg = qo * GOR + QGL[0] * 10 ** 3  # qo*GOR+GLR*10^3
 
         if any_intersection:
             print(f'WHP:{WHP}, GOR:{GOR}, WC:{WC}, QGL:{QGL}, Q:{bigest_Q}\n--->> qo:{qo}, qw:{qw}, qg:{qg}\n')

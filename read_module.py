@@ -11,7 +11,8 @@ def read_json_data(file_name):
         data_dict = json.load(data)
     free_vars = data_dict["free variables"]
     tpd_res = pd.Series(data_dict["tpd results"])
-    return free_vars,tpd_res
+    combinations = data_dict["combinations"]
+    return free_vars,tpd_res,combinations
 
 
 # all_data = read_json_data('wells data/Well1.json')
