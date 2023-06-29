@@ -3,6 +3,7 @@ import numpy as np
 import json
 import os
 
+# TODO: remove dir
 tpd_files_directory = "I:\oil-well-project\\tpd change to txt" #input('enter directory of tpd files:').replace('\\','/')
 json_files_directory = "I:\oil-well-project\program\wells data" #input('enter directory of converted json:').replace('\\','/')
 

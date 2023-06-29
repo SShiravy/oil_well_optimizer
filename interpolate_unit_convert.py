@@ -117,14 +117,15 @@ class Interpolation:
             # print(free_vars,'\n',result)
             # if the Q in intersection point is the bigest one then :
             if result['x']>bigest_Q:
+                # TODO: bigest qo
                 any_intersection = True
                 bigest_Q = result['x']
                 new_free_vars = np.insert(free_vars, -1, bigest_Q)[:-1]
                 BHP_bigest_Q = self.result(new_free_vars)
                 WHP, GOR, WC, QGL, _ = free_vars
-                qw = bigest_Q*(1-WC) # Q*(1-WC)
+                qw = bigest_Q*(WC/100) # Q*(1-WC/100)
                 qo = bigest_Q-qw # Q-qw
-                qg = qo*GOR+QGL
+                qg = qo*GOR + QGL * 10 ** 3 # qo*GOR+GLR*10^3
 
         if any_intersection:
             print(f'WHP:{WHP}, GOR:{GOR}, WC:{WC}, QGL:{QGL}, Q:{bigest_Q[0]} ==>> BHP:{BHP_bigest_Q}\n--->> qo:{qo}, qw:{qw}, qg:{qg}\n')
@@ -158,6 +159,7 @@ class Interpolation:
             result = minimize(difference, QGL,bounds=Bounds(0,14000), method='Nelder-Mead')
 
             if result['x']>0 and free_vars[-1]>bigest_Q:
+                # TODO: we should have qo
                 QGL = result['x']
                 WHP, GOR, WC, _, bigest_Q = free_vars
                 qw = bigest_Q * (WC / 100)  # Q*(WC/100)
