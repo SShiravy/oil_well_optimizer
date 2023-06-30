@@ -22,10 +22,6 @@ def interpolate_all_wells(data_path,df):
 
     return RGI_dict
 
-# -----------------------------------------------------------------------------------
-data_path = 'wells data'
 
-df = pd.read_csv('Data_for_Interpolation.csv')
-print(df)
-# run function to interpolate df (data from csv file , 10 rows of data in this example)
-RGI_WELLs_dict = interpolate_all_wells(data_path,df)
+
+

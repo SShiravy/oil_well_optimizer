@@ -6,8 +6,8 @@ from config import *
 
 i = 0 # for iterate J and PR
 field_paramteres_dict = {} # maping file name to its fields param
-for data_file in os.listdir(DATA_PATH)[:]:
-    free_vars, tpd_res, combinations = read_json_data(DATA_PATH + '/' + data_file)
+for data_file in os.listdir(DATA_DIR)[:]:
+    free_vars, tpd_res, combinations = read_json_data(DATA_DIR + '/' + data_file)
     # create interpolation object and doing interploation
     interpolate_obj = Interpolation(free_vars,tpd_res)
     interpolate_obj.config_interpolation()

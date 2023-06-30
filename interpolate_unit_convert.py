@@ -3,7 +3,7 @@ from scipy import interpolate as irp
 import numpy as np
 from scipy.optimize import minimize,Bounds
 import matplotlib.pyplot as plt
-from config import INTERPOLATE_METHOD,unit_convert_coefficient,unit_convert_intercept
+from config import *
 from math import sqrt
 
 
@@ -28,20 +28,21 @@ class Interpolation:
         return list2arr
 
     def get_points(self):
+        # TODO: from config import coeff and intercept
         points = []
         for var in list(self.free_vars.keys())[::-1]:
             if var == 'Rate values':
                 point_free_var = self.free_vars.get(
                     'Rate values')  # Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
                 df_to_arr = np.array(point_free_var)  # Converts df to numpy array
-                df_to_arr_converted = self.convert_points(df_to_arr, 0, 0.158987294928)
+                df_to_arr_converted = self.convert_points(df_to_arr, unit_convert_intercept[-1], unit_convert_coefficient[-1])
                                                            # Multiplication for rate values unit conversion
                 new_arr = df_to_arr_converted.flatten()
             elif var == 'GL rate':
                 point_free_var = self.free_vars.get(
                     'GL rate')  # Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
                 df_to_arr = np.array(point_free_var)  # Converts df to numpy array
-                df_to_arr_converted = self.convert_points(df_to_arr, 0, 28.17397429124846)
+                df_to_arr_converted = self.convert_points(df_to_arr, unit_convert_intercept[-2], unit_convert_coefficient[-2])
                                                            # Multiplication for GL rate unit conversion
                 new_arr = df_to_arr_converted.flatten()
             elif var == 'WC':  # NO conversion for WC
@@ -53,14 +54,14 @@ class Interpolation:
                 point_free_var = self.free_vars.get(
                     'GOR')  # Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
                 df_to_arr = np.array(point_free_var)  # Converts df to numpy array
-                df_to_arr_converted = self.convert_points(df_to_arr, 0, 0.17810760667903525)
+                df_to_arr_converted = self.convert_points(df_to_arr, unit_convert_intercept[1], unit_convert_coefficient[1])
                                                             # Multiplication for GOR unit conversion
                 new_arr = df_to_arr_converted.flatten()
             elif var == 'Pressure':
                 point_free_var = self.free_vars.get(
                     'Pressure')  # Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
                 df_to_arr = np.array(point_free_var)  # Converts df to numpy array
-                df_to_arr_converted = self.convert_points(df_to_arr, 14.696, 0.0689475729)
+                df_to_arr_converted = self.convert_points(df_to_arr, 14.696, unit_convert_coefficient[0])
                                                             # Multiplication for top node pressure unit conversion (and addition of 1)
                 new_arr = df_to_arr_converted.flatten()
             points.append(new_arr)
@@ -85,12 +86,11 @@ class Interpolation:
         self.well_RGIs = self.result(df.values)
         return self.well_RGIs
 
-    def well_production(self,input_data,J,Pr,Pb,vogel):
+    def well_production(self,input_data,J,Pr,Pb,vogel,Q_max):
         '''
         this method calculate qo,qw,qg using given inputs
         where we have bigest Q of the intersection between IPR and VLP
         '''
-
         # initialization
         WHP, GOR, WC, QGL, Q = 0,0,0,0,300
         bigest_Q = 0
@@ -100,24 +100,25 @@ class Interpolation:
         # task 5 :
         for free_vars in input_data:
             free_vars = (np.array(free_vars)+unit_convert_intercept)*unit_convert_coefficient
-            qb = J * (Pr - Pb)
-            q_max = qb + (J * Pb) / 1.8
+
             def difference(Q):
                 new_free_vars = np.insert(free_vars, -1, Q)[:-1]
                 BHP_VLP = self.result(new_free_vars)
                 if vogel:
+                    q_max = Q_max
                     BHP_IPR = 0.125*Pr*(-1+sqrt(81-80*(Q/q_max)))
                 else:
+                    qb = J * (Pr - Pb)
+                    q_max = qb + (J * Pb) / 1.8
                     BHP_IPR = 0.125*Pb*(-1+sqrt(81-80*((Q-qb)/(q_max-qb))))
 
                 return abs(BHP_IPR-BHP_VLP[0])
 
             # we should specify the bounds parameter to avoid 'out of boundary' error when calculate VLP
-            result = minimize(difference,Q,bounds=Bounds(64,3000),method='Nelder-Mead')
+            result = minimize(difference,Q,bounds=Bounds(64,3000),method=well_production_method)
             # print(free_vars,'\n',result)
             # if the Q in intersection point is the bigest one then :
             if result['x']>bigest_Q:
-                # TODO: bigest qo
                 any_intersection = True
                 bigest_Q = result['x']
                 new_free_vars = np.insert(free_vars, -1, bigest_Q)[:-1]
@@ -129,6 +130,7 @@ class Interpolation:
 
         if any_intersection:
             print(f'WHP:{WHP}, GOR:{GOR}, WC:{WC}, QGL:{QGL}, Q:{bigest_Q[0]} ==>> BHP:{BHP_bigest_Q}\n--->> qo:{qo}, qw:{qw}, qg:{qg}\n')
+            self.plot_BHP([WHP,GOR,WC,QGL,0],J,Pr,Pb,vogel)
         else:
             print('there is no intersection between IPR & VLP')
 
@@ -156,7 +158,7 @@ class Interpolation:
 
                 return abs(BHP_IPR - BHP_VLP[0])
 
-            result = minimize(difference, QGL,bounds=Bounds(0,14000), method='Nelder-Mead')
+            result = minimize(difference, QGL,bounds=Bounds(0,14000), method=calculate_field_parameters)
 
             if result['x']>0 and free_vars[-1]>bigest_Q:
                 # TODO: we should have qo
