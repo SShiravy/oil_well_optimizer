@@ -1,9 +1,9 @@
 from interpolate_unit_convert import Interpolation
 import pandas as pd
 import os
-from read_function import read_json_data
+from read_module import read_json_data
 
-def interpolate_all_wells(data_path,df):
+def interpolate_df(data_path,df):
     '''
     read data from csv as df, create interpolation obj from free vars and tpd res of wells .json
     and after call .do_interpolation , call the result with df rows as input

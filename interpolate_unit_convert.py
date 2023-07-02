@@ -175,24 +175,24 @@ class Interpolation:
 
         return np.array([round(qo, 4), round(qg, 4), round(qw, 4)])
 
-    def plot_BHP(self,input_data,J,Pr,Pb,vogel):
-        for free_vars in input_data:
-            BHP_VLP,BHP_IPR=[],[]
-            Q_list = np.array(range(64, 3000))
-            qb = J * (Pr - Pb)
-            q_max = qb + J * Pb / 1.8
-            for Q in Q_list:
-                free_vars = np.insert(free_vars, -1, Q)[:-1]
-                BHP_VLP.append(self.result(free_vars)[0])
-                try:
-                    if vogel:
-                        ipr = 0.125 * Pr * (-1 + sqrt(81 - 80 * (Q / q_max)))
-                    else:
-                        ipr = 0.125 * Pb * (-1 + sqrt(81 - 80 * ((Q - qb) / (q_max - qb))))
-                except:
-                    ipr = 0
-                BHP_IPR.append(ipr) if ipr>0 else BHP_IPR.append(0)
-            print('plot for free variables:',free_vars)
-            plt.plot(Q_list, BHP_VLP, color='blue')
-            plt.plot(Q_list, BHP_IPR, color='red')
-            plt.show()
+    def plot_BHP(self,free_vars,J,Pr,Pb,vogel):
+        BHP_VLP,BHP_IPR=[],[]
+        Q_list = np.array(range(64, 3000))
+        qb = J * (Pr - Pb)
+        q_max = qb + J * Pb / 1.8
+        for Q in Q_list:
+            free_vars = np.insert(free_vars, -1, Q)[:-1]
+            BHP_VLP.append(self.result(free_vars)[0])
+            if VOGEL_EQUATION[i]:
+                q_max = J[i] * PR[i] / 1.8
+                BHP_IPR = 0.125 * PR[i] * (-1 + (81 - 80 * (Q / q_max)) ** (1 / 2))
+            else:
+                qb = J[i] * (PR[i] - PB[i])
+                q_max = qb + (J[i] * PB[i]) / 1.8
+                BHP_IPR = 0.125 * PB[i] * (-1 + (81 - 80 * ((Q - qb) / (q_max - qb))) ** (1 / 2))
+
+            BHP_IPR.append(ipr) if ipr>0 else BHP_IPR.append(0)
+        print('close the window to continue process')
+        plt.plot(Q_list, BHP_VLP, color='blue')
+        plt.plot(Q_list, BHP_IPR, color='red')
+        plt.show()
