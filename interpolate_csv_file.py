@@ -11,7 +11,7 @@ def interpolate_df(data_path,df):
     '''
     RGI_dict = {}
     for data_file in os.listdir(data_path):
-        free_vars,tpd_res = read_json_data(data_path+'/'+data_file)
+        free_vars,tpd_res,_ = read_json_data(data_path+'/'+data_file)
         # create interpolation object and doing interploation
         interpolate_obj = Interpolation(free_vars,tpd_res)
         interpolate_obj.config_interpolation()

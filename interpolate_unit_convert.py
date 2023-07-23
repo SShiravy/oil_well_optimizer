@@ -28,7 +28,6 @@ class Interpolation:
         return list2arr
 
     def get_points(self):
-        # TODO: from config import coeff and intercept
         points = []
         for var in list(self.free_vars.keys())[::-1]:
             if var == 'Rate values':
@@ -86,21 +85,19 @@ class Interpolation:
         self.well_RGIs = self.result(df.values)
         return self.well_RGIs
 
-    def plot_BHP(self,free_vars,J,Pr,Pb,vogel):
+    def plot_BHP(self,free_vars,i):
         BHP_VLP,BHP_IPR=[],[]
         Q_list = np.array(range(64, 3000))
-        qb = J * (Pr - Pb)
-        q_max = qb + J * Pb / 1.8
         for Q in Q_list:
             free_vars = np.insert(free_vars, -1, Q)[:-1]
             BHP_VLP.append(self.result(free_vars)[0])
             if VOGEL_EQUATION[i]:
                 q_max = J[i] * PR[i] / 1.8
-                BHP_IPR = 0.125 * PR[i] * (-1 + (81 - 80 * (Q / q_max)) ** (1 / 2))
+                ipr = 0.125 * PR[i] * (-1 + (81 - 80 * (Q / q_max)) ** (1 / 2))
             else:
                 qb = J[i] * (PR[i] - PB[i])
                 q_max = qb + (J[i] * PB[i]) / 1.8
-                BHP_IPR = 0.125 * PB[i] * (-1 + (81 - 80 * ((Q - qb) / (q_max - qb))) ** (1 / 2))
+                ipr = 0.125 * PB[i] * (-1 + (81 - 80 * ((Q - qb) / (q_max - qb))) ** (1 / 2))
 
             BHP_IPR.append(ipr) if ipr>0 else BHP_IPR.append(0)
         print('close the window to continue process')

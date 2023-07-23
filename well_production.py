@@ -15,32 +15,31 @@ def well_production(interpolate_obj, fixed_free_vars, well_number):
     def difference(Q):
         free_vars = np.insert(fixed_free_vars, -1, Q)[:-1]
         BHP_VLP = interpolate_obj.result(free_vars)
+        print('freevars',free_vars,BHP_VLP)
         if VOGEL_EQUATION[well_number]:
-            q_max = Qmax[well_number]
+            q_max = J[well_number]*PB[well_number]/1.8
             BHP_IPR = 0.125 * PR[well_number] * (-1 + (81 - 80 * (Q / q_max)) ** (1 / 2))
         else:
             qb = J[well_number] * (PR[well_number] - PB[well_number])
-            q_max = Qmax[well_number]
+            q_max = J[well_number]*PB[well_number]/1.8 + qb
             BHP_IPR = 0.125 * PB[well_number] * (-1 + (81 - 80 * ((Q - qb) / (q_max - qb))) ** (1 / 2))
-
-        return abs(BHP_IPR-BHP_VLP[0])
+        print('aasss',BHP_IPR)
+        return abs(BHP_IPR[0]-BHP_VLP[0])
 
     # we should specify the bounds parameter to avoid 'out of boundary' error when calculate VLP
-    result = minimize(difference,300,bounds=Bounds(64,3000),method=WELL_PRODUCTION_METHOD)
+    result = minimize(difference,1562,bounds=Bounds(64,3000),method=WELL_PRODUCTION_METHOD)
     # q_max = J[well_number] * PR[well_number] / 1.8
-    qb = J[well_number] * (PR[well_number] - PB[well_number])
-    q_max = qb + (J[well_number] * PB[well_number]) / 1.8
-    print(qb,q_max)
+    interpolate_obj.plot_BHP(fixed_free_vars,well_number)
     Q = result['x']
-    if Q > 0:
-        free_vars = np.insert(fixed_free_vars, -1, Q)[:-1]
-        BHP = interpolate_obj.result(free_vars)
-        WHP,GOR,WC,QGL,_ = free_vars
-        qw = Q * (1 - WC / 100)
-        qo = Q - qw  # Q-qw
-        qg = qo * GOR + QGL * 10 ** 3  # qo*GOR+GLR*10^3
-        print(f'fixed free variables:{fixed_free_vars[:-1]}\nQ in intersection:{Q} and BHP:{BHP} -->> qo:{qo}, qw:{qw}, qg:{qg}')
-        return Q
+    print('Qmax',J[well_number]*PB[well_number]/1.8 +J[well_number] * (PR[well_number] - PB[well_number]))
+    free_vars = np.insert(fixed_free_vars, -1, Q)[:-1]
+    BHP = interpolate_obj.result(free_vars)
+    WHP,GOR,WC,QGL,_ = free_vars
+    qw = Q * (1 - WC / 100)
+    qo = Q - qw  # Q-qw
+    qg = qo * GOR + QGL * 10 ** 3  # qo*GOR+GLR*10^3
+    print(f'fixed free variables:{fixed_free_vars[:-1]}\nQ in intersection:{Q} and BHP:{BHP} -->> qo:{qo}, qw:{qw}, qg:{qg}')
+    return Q
 
 # function to run task 5 on all -----------------------------------------------
 

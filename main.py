@@ -13,7 +13,7 @@ import os
 # ---- interpolate df (data from csv file , 10 rows of data in this example) ----
 # df = pd.read_csv(INTERPOLATION_CSV_PATH)
 # print(df)
-# RGI_WELLs_dict = interpolate_all_wells(DATA_DIR, df)
+# RGI_WELLs_dict = interpolate_df(DATA_DIR, df)
 
 # 2- well production
 # ----
@@ -25,10 +25,13 @@ for data_file in os.listdir(DATA_DIR)[:]:
     interpolate_obj.config_interpolation()
     print('-------------', data_file, '-------------')
     fixed_free_vars = list(pd.read_csv(WELL_PRODUCTION_CSV_PATH).iloc[i])
-    fixed_free_vars.append(0)
+    fixed_free_vars.append(1053.5)
+    print(fixed_free_vars)
+    print('mioooo',interpolate_obj.result(fixed_free_vars))
+    # fixed_free_vars.append(0)
 
     well_production(interpolate_obj,np.array(fixed_free_vars),i)
-    #fields_optimization(interpolate_obj,np.array(fixed_free_vars),i)
+    # fields_optimization(interpolate_obj,np.array(fixed_free_vars),i)
     i+=1
 
 

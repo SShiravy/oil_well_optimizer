@@ -4,7 +4,7 @@ WELL_PRODUCTION_CSV_PATH = 'Data_for_well_production.csv'
 INTERPOLATE_METHOD = "cubic" # or cubic,pchip
 
 
-J = [19.7733,19.6487,19.6487,3.52595,3.52595,3.52595] # Sm3/day/bar
+J = [16.52,19.6487,19.6487,3.52595,3.52595,3.52595] # Sm3/day/bar
 PR = [238.882,256.119,256.119,209.649,209.649,209.649] # bara
 PB = [242.33,242.33,242.33,152.698,152.698,152.698] #
 VOGEL_EQUATION = [True, False, False, False, False, False] # vogel or composite
