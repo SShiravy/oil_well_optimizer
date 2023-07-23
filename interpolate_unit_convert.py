@@ -92,14 +92,16 @@ class Interpolation:
             free_vars = np.insert(free_vars, -1, Q)[:-1]
             BHP_VLP.append(self.result(free_vars)[0])
             if VOGEL_EQUATION[i]:
-                q_max = J[i] * PR[i] / 1.8
+                q_max = Qmax[i]
                 ipr = 0.125 * PR[i] * (-1 + (81 - 80 * (Q / q_max)) ** (1 / 2))
             else:
                 qb = J[i] * (PR[i] - PB[i])
-                q_max = qb + (J[i] * PB[i]) / 1.8
+                q_max = Qmax[i]
                 ipr = 0.125 * PB[i] * (-1 + (81 - 80 * ((Q - qb) / (q_max - qb))) ** (1 / 2))
 
             BHP_IPR.append(ipr) if ipr>0 else BHP_IPR.append(0)
+            print(f'Q:{Q}=>>\n---VLP:{BHP_VLP[-1]} |||| IPR:{ipr}')
+
         print('close the window to continue process')
         plt.plot(Q_list, BHP_VLP, color='blue')
         plt.plot(Q_list, BHP_IPR, color='red')

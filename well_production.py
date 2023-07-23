@@ -15,19 +15,18 @@ def well_production(interpolate_obj, fixed_free_vars, well_number):
     def difference(Q):
         free_vars = np.insert(fixed_free_vars, -1, Q)[:-1]
         BHP_VLP = interpolate_obj.result(free_vars)
-        print('freevars',free_vars,BHP_VLP)
         if VOGEL_EQUATION[well_number]:
-            q_max = J[well_number]*PB[well_number]/1.8
+            q_max = Qmax[well_number]
             BHP_IPR = 0.125 * PR[well_number] * (-1 + (81 - 80 * (Q / q_max)) ** (1 / 2))
         else:
             qb = J[well_number] * (PR[well_number] - PB[well_number])
-            q_max = J[well_number]*PB[well_number]/1.8 + qb
+            q_max = Qmax[well_number]
             BHP_IPR = 0.125 * PB[well_number] * (-1 + (81 - 80 * ((Q - qb) / (q_max - qb))) ** (1 / 2))
-        print('aasss',BHP_IPR)
+        print(f'freevars:{free_vars}\n---VLP:{BHP_VLP[0]} |||| IPR:{BHP_IPR[0]}')
         return abs(BHP_IPR[0]-BHP_VLP[0])
 
     # we should specify the bounds parameter to avoid 'out of boundary' error when calculate VLP
-    result = minimize(difference,1562,bounds=Bounds(64,3000),method=WELL_PRODUCTION_METHOD)
+    result = minimize(difference,1000,bounds=Bounds(64,3000),method=WELL_PRODUCTION_METHOD)
     # q_max = J[well_number] * PR[well_number] / 1.8
     interpolate_obj.plot_BHP(fixed_free_vars,well_number)
     Q = result['x']
