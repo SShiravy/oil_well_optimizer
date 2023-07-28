@@ -12,7 +12,7 @@ Qmax = [2350.73,2275.04,2275.04,235.974,235.974,235.974]
 # GAP: 2356.40,2288.9234,2288.9234,236.7919,236.7919,236.7919
 #--------------------------->>>> Pressure, GOR, WC, GL rate, Rate values
 unit_convert_coefficient = [0.0689476,0.1772,1,28.174,0.158987]
-unit_convert_intercept = [14.676,0,0,0,0]
+unit_convert_intercept = [14.696,0,0,0,0]
 #--------------------------->>>> method for minimize
 # Nelder-Mead, L-BFGS-B, TNC, SLSQP, Powell, trust-constr, COBYLA
 WELL_PRODUCTION_METHOD = 'Nelder-Mead'

@@ -59,7 +59,7 @@ class Interpolation:
                 point_free_var = self.free_vars.get(
                     'Pressure')  # Get points from the dictionary they're stored in. Have to get the last element first in this list for the interpolation to be correct
                 df_to_arr = np.array(point_free_var)  # Converts df to numpy array
-                df_to_arr_converted = self.convert_points(df_to_arr, 14.696, unit_convert_coefficient[0])
+                df_to_arr_converted = self.convert_points(df_to_arr, unit_convert_intercept[0], unit_convert_coefficient[0])
                                                             # Multiplication for top node pressure unit conversion (and addition of 1)
                 new_arr = df_to_arr_converted.flatten()
             points.append(new_arr)
