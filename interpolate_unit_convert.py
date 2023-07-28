@@ -14,8 +14,7 @@ class Interpolation:
         self.tpd_res_unit_converted = []
         self.reshaped_tpd_res = None
         self.pnts = None
-        self.result = None
-        self.well_RGIs = []
+        self.interpolate = None
 
     # unit_list = ['Rate values', 'GL rate', 'WC', 'GOR', 'Pressure'] #Have to have same length as number of free variables.
     def convert_points(self, list_2bconverted, alpha, beta):
@@ -77,20 +76,16 @@ class Interpolation:
     def config_interpolation(self):
         self.get_points()
         self.get_data()
-        self.result = irp.RegularGridInterpolator(points=self.pnts, values=self.reshaped_tpd_res, method=INTERPOLATE_METHOD)
-        return self.result
+        self.interpolate = irp.RegularGridInterpolator(points=self.pnts, values=self.reshaped_tpd_res, method=INTERPOLATE_METHOD)
+        return self.interpolate
 
-    def interpolate(self,df):
-        # interpolate each row of df
-        self.well_RGIs = self.result(df.values)
-        return self.well_RGIs
 
     def plot_BHP(self,free_vars,i):
         BHP_VLP,BHP_IPR=[],[]
         Q_list = np.array(range(64, 3000))
         for Q in Q_list:
             free_vars = np.insert(free_vars, -1, Q)[:-1]
-            BHP_VLP.append(self.result(free_vars)[0])
+            BHP_VLP.append(self.interpolate(free_vars)[0])
             if VOGEL_EQUATION[i]:
                 q_max = Qmax[i]
                 ipr = 0.125 * PR[i] * (-1 + (81 - 80 * (Q / q_max)) ** (1 / 2))
@@ -100,7 +95,7 @@ class Interpolation:
                 ipr = 0.125 * PB[i] * (-1 + (81 - 80 * ((Q - qb) / (q_max - qb))) ** (1 / 2))
 
             BHP_IPR.append(ipr) if ipr>0 else BHP_IPR.append(0)
-            print(f'Q:{Q}=>>\n---VLP:{BHP_VLP[-1]} |||| IPR:{ipr}')
+            # print(f'Q:{Q}=>>\n---VLP:{BHP_VLP[-1]} |||| IPR:{ipr}')
 
         print('close the window to continue process')
         plt.plot(Q_list, BHP_VLP, color='blue')
