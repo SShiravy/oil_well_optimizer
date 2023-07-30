@@ -1,4 +1,4 @@
-from config import DATA_DIR,INTERPOLATION_CSV_PATH,WELL_PRODUCTION_CSV_PATH
+from config import DATA_DIR,INTERPOLATION_CSV_PATH,WELL_PRODUCTION_CSV_PATH,Q_MAX
 from well_production import well_production
 from field_optimization import fields_optimization
 from read_module import read_json_data
@@ -27,8 +27,9 @@ if __name__ == '__main__'   :
         # 2- well production
         fixed_free_vars = list(pd.read_csv(WELL_PRODUCTION_CSV_PATH).iloc[i])
         fixed_free_vars.append(0)
-        well_production(interpolate_obj,np.array(fixed_free_vars),i)
-        # fields_optimization(interpolate_obj,np.array(fixed_free_vars),i)
+        Q,qw,qo,qg,BHP = well_production(interpolate_obj,np.array(fixed_free_vars),i)
+        print(f'fixed free variables:{fixed_free_vars[:-1]}\nQ_max:{Q_MAX[i]}\nQ in intersection:{Q} and BHP:{BHP} -->> qo:{qo}, qw:{qw}, qg:{qg}')
+        fields_optimization(interpolate_obj,np.array(fixed_free_vars),i)
         i+=1
 
 
