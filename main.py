@@ -12,6 +12,7 @@ if __name__ == '__main__'   :
     # create dataframe for test interpolation
     df = pd.read_csv(INTERPOLATION_CSV_PATH)
     print('dataframe for test interpolation:\n', df)
+    qo_field, qw_field, qg_field = 0,0,0
     i = 0  # for csv rows for task 5
     for data_file in os.listdir(DATA_DIR):
         print('-------------', data_file, '-------------')
@@ -29,10 +30,11 @@ if __name__ == '__main__'   :
         fixed_free_vars.append(0)
         Q,qw,qo,qg,BHP = well_production(interpolate_obj,np.array(fixed_free_vars),i)
         print(f'fixed free variables:{fixed_free_vars[:-1]}\nQ_max:{Q_MAX[i]}\nQ in intersection:{Q} and BHP:{BHP} -->> qo:{qo}, qw:{qw}, qg:{qg}')
-        fields_optimization(interpolate_obj,np.array(fixed_free_vars),i)
+        # 3-fields parameters
+        qo,qw,qg = fields_optimization(interpolate_obj,np.array(fixed_free_vars),i)
+        qo_field+=qo
+        qw_field+=qw
+        qg_field+=qg
         i+=1
 
-
-    # 3-fields parameters
-
-    # fields_params()
+    print(f'------------------------------\nqo field:{qo_field},qw field:{qw_field},qg field:{qg_field}')
