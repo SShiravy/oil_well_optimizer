@@ -1,7 +1,7 @@
 DATA_DIR = 'wells data' # directory of json files
 INTERPOLATION_CSV_PATH = 'Data_for_Interpolation.csv'
 WELL_PRODUCTION_CSV_PATH = 'Data_for_well_production.csv'
-INTERPOLATE_METHOD = "cubic" # or cubic,pchip
+INTERPOLATE_METHOD = "cubic"  # or cubic,pchip
 
 
 J = [19.77,19.72,19.72,3.523,3.53,3.53] # Sm3/day/bar
@@ -17,4 +17,4 @@ unit_convert_intercept = [14.696,0,0,0,0]
 #--------------------------->>>> method for minimize
 # Nelder-Mead, L-BFGS-B, TNC, SLSQP, Powell, trust-constr, COBYLA
 WELL_PRODUCTION_METHOD = 'Nelder-Mead'
-CALCULATE_FIELDS_METHOD = 'SLSQP'
+CALCULATE_FIELDS_METHOD = 'Nelder-Mead'
