@@ -36,7 +36,7 @@ def well_production(interpolate_obj, fixed_free_vars, well_number):
     _,GOR,WC,QGL,_ = fixed_free_vars
     qw = Q * (WC / 100)
     qo = Q - qw  # Q-qw
-    qg = qo * GOR + QGL # qo*GOR+GLR*10^3
+    qg = (qo * GOR + QGL)/1000 # qo*GOR+GLR*10^3
     return Q,qw,qo,qg,BHP_VLP
 # function to run task 5 on all -----------------------------------------------
 
