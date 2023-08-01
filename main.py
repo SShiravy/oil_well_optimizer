@@ -9,6 +9,7 @@ import os
 import warnings
 
 warnings.filterwarnings('ignore')
+
 # TODO: good prints
 if __name__ == '__main__':
     # create dataframe for test interpolation
@@ -26,19 +27,18 @@ if __name__ == '__main__':
         # 1- Interpolate dataframe
         # ---- interpolate df (data from csv file , 10 rows of data in this example) ----
         list_of_BHPs = interpolate_obj.interpolate(df)
-        print('BHP of rows in dataframe:', list_of_BHPs)
+        print(f'BHP of rows in dataframe:\n{list_of_BHPs}')
         # 2- well production
         fixed_free_vars = list(pd.read_csv(WELL_PRODUCTION_CSV_PATH).iloc[i])
         fixed_free_vars.append(0)
-        # print('|||||||||||||',interpolate_obj.interpolate(fixed_free_vars))
         Q, qw, qo, qg, BHP = well_production(interpolate_obj, np.array(fixed_free_vars), i)
-        print(
-            f'fixed free variables:{fixed_free_vars[:-1]}\nQ_max:{Q_MAX[i]}\nQ in intersection:{Q} and BHP:{BHP} -->> qo:{qo}, qw:{qw}, qg:{qg}')
-        plot_ipr_vlp(interpolate_obj, fixed_free_vars, i)
+        print(f'fixed free variables:{fixed_free_vars[:-1]}\nQ_max:{Q_MAX[i]}\n'
+              f'Q in intersection: {Q} | BHP: {BHP} -->> qo:{qo}, qw:{qw}, qg:{qg}')
         plot_qo(fixed_free_vars, interpolate_obj, i)
         # 3-fields parameters
         qo, qw, qg, QGL = fields_optimization(interpolate_obj, np.array(fixed_free_vars), i)
-        # sumation for fields parameters
+        plot_ipr_vlp(interpolate_obj, fixed_free_vars, i)
+        # summation for fields parameters
         qo_field += qo
         qw_field += qw
         qg_field += qg

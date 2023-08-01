@@ -10,7 +10,6 @@ def well_production(interpolate_obj, fixed_free_vars, well_number):
     where we have biggest Q of the intersection between IPR and VLP
     for task 5
     """
-
     def difference(Q):
         global BHP_VLP
         free_vars = np.insert(fixed_free_vars, -1, Q)[:-1]
@@ -25,12 +24,12 @@ def well_production(interpolate_obj, fixed_free_vars, well_number):
 
     # we should specify the bounds parameter to avoid 'out of boundary' error when calculate VLP
     result = minimize(difference, Q_initial[well_number], bounds=Bounds(63, 3200), method=WELL_PRODUCTION_METHOD)
-    Q = result['x']
+    Q = result['x'][0]
     _, GOR, WC, QGL, _ = fixed_free_vars
     qw = Q * (WC / 100)
     qo = Q - qw  # Q-qw
     qg = (qo * GOR + QGL) / 1000
-    return Q, qw, qo, qg, BHP_VLP
+    return Q, qw, qo, qg, BHP_VLP[0]
 
 
 def plot_ipr_vlp(interpolate_obj, free_vars, i):
@@ -56,5 +55,5 @@ def plot_ipr_vlp(interpolate_obj, free_vars, i):
     plt.plot(Q_list, ipr, color='red')
     plt.xlabel("Liquid Rate")
     plt.ylabel("Flowing Bottom Hole Pressure")
-    plt.savefig(f'IPR_VLP-Well{i + 1}.png')
+    plt.savefig(f'images/IPR_VLP-Well{i + 1}.png')
     plt.figure()

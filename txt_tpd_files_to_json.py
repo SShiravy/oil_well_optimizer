@@ -1,27 +1,26 @@
-import pandas as pd
 import numpy as np
 import json
 import os
 
-# TODO: remove dir
-tpd_files_directory = "I:\oil-well-project\\tpd change to txt" #input('enter directory of tpd files:').replace('\\','/')
-json_files_directory = "I:\oil-well-project\program\wells data" #input('enter directory of converted json:').replace('\\','/')
+tpd_files_directory = input('enter directory of tpd files:').replace('\\', '/')
+json_files_directory = input('enter directory of converted json:').replace('\\', '/')
 
 # create json files
-data_dict = {"free variables":
-    {
-        "Rate values": '',
-        "GL rate": '',
-        "WC": '',
-        "GOR": '',
-        "Pressure": ''
-    },
+data_dict = {
+    "free variables":
+        {
+            "Rate values": '',
+            "GL rate": '',
+            "WC": '',
+            "GOR": '',
+            "Pressure": ''
+        },
     "tpd results": '',
 }
 
 for file_name in os.listdir(tpd_files_directory):
     # read all tpd files in the directory then extract free variables and tpd results
-    with open(tpd_files_directory+'/'+file_name, 'r') as fp:
+    with open(tpd_files_directory + '/' + file_name, 'r') as fp:
         data = fp.readlines()
         index = data.index('# Rate Values\n')
         free_var = data[index:index + 10]
@@ -39,5 +38,5 @@ for file_name in os.listdir(tpd_files_directory):
     tpd_res = [float(i.replace(',', '')) for i in tpd_res]
     data_dict['tpd results'] = tpd_res
     # create json file
-    with open(json_files_directory+'/'+file_name[:-3]+'json', 'w') as outfile:
-        json.dump(data_dict, outfile,indent=5)
+    with open(json_files_directory + '/' + file_name[:-3] + 'json', 'w') as outfile:
+        json.dump(data_dict, outfile, indent=5)
