@@ -29,8 +29,9 @@ for file_name in os.listdir(tpd_files_directory):
     # free variables
     free_var = [i.split() for i in free_var]
     free_var = [free_var[i] for i in range(1, 11, 2)]
-    for d in range(len(free_var)): # TODO: make it easier
-        data_dict['free variables'][list(data_dict['free variables'].keys())[d]] \
+    for d in range(len(free_var)):
+        choosen_free_var = list(data_dict['free variables'].keys())[d]
+        data_dict['free variables'][choosen_free_var] \
             = [float(i.replace(',', '')) for i in free_var[d]]
     # tpd results
     tpd_res = [i.split() for i in tpd_res]
