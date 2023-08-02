@@ -18,12 +18,12 @@ def fields_optimization(interpolate_obj, fixed_free_vars, well_number):
         return -qo
 
     result = minimize(optimize_qo, 100, bounds=Bounds(0, 1400), method=CALCULATE_FIELDS_METHOD)
+    print(result)
     QGL = result['x']
     GOR, WC = fixed_free_vars[1], fixed_free_vars[2]
     qw = Qliq * WC / 100
     qg = qo * GOR + QGL
-    print(f'QGL:{QGL},free variables:{free_vars},qo:{qo},QLiq:{Qliq}')
-    return qo, qw, qg, QGL
+    return qo, qw, qg, QGL, Qliq
 
 
 def plot_qo(fixed_free_vars, interpolate_obj, i):
@@ -31,7 +31,7 @@ def plot_qo(fixed_free_vars, interpolate_obj, i):
     using for loop for creating plots
     """
     _QO = []
-    QGL_LIST = np.array(range(29, 50))
+    QGL_LIST = np.array(range(50, 300,10))
     for QGL in QGL_LIST:
         free_variables = np.insert(fixed_free_vars, -2, QGL)
         free_variables = np.delete(free_variables, -2, 0)
@@ -42,4 +42,5 @@ def plot_qo(fixed_free_vars, interpolate_obj, i):
     plt.plot(QGL_LIST, _QO, color='blue')
     plt.xlabel("Q liquid")
     plt.ylabel("")
-    plt.savefig(f'qo_Well{i + 1}.png')
+    plt.savefig(f'images/qo_Well{i + 1}.png')
+    plt.figure()

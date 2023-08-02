@@ -18,7 +18,7 @@ if __name__ == '__main__':
     qo_field, qw_field, qg_field, QGL_field = 0, 0, 0, 0
     i = 0  # for csv rows for task 5
     for data_file in os.listdir(DATA_DIR):
-        print('-------------', data_file, '-------------')
+        print('\n-------------', data_file, '-------------')
         # read json files
         free_vars, tpd_res = read_json_data(DATA_DIR + '/' + data_file)
         # create interpolation object and config interpolation
@@ -34,10 +34,11 @@ if __name__ == '__main__':
         Q, qw, qo, qg, BHP = well_production(interpolate_obj, np.array(fixed_free_vars), i)
         print(f'fixed free variables:{fixed_free_vars[:-1]}\nQ_max:{Q_MAX[i]}\n'
               f'Q in intersection: {Q} | BHP: {BHP} -->> qo:{qo}, qw:{qw}, qg:{qg}')
-        plot_qo(fixed_free_vars, interpolate_obj, i)
-        # 3-fields parameters
-        qo, qw, qg, QGL = fields_optimization(interpolate_obj, np.array(fixed_free_vars), i)
         plot_ipr_vlp(interpolate_obj, fixed_free_vars, i)
+        # 3-fields parameters
+        qo, qw, qg, QGL, Qliq = fields_optimization(interpolate_obj, np.array(fixed_free_vars), i)
+        print(f'\nQGL: {QGL}, qo: {qo}, Qliq: {Qliq}')
+        plot_qo(fixed_free_vars, interpolate_obj, i)
         # summation for fields parameters
         qo_field += qo
         qw_field += qw

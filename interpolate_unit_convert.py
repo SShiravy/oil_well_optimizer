@@ -26,7 +26,7 @@ class Interpolation:
     def get_points(self):
         # create a tuple of unit converted points and
         rate_values = self.convert_points(self.free_vars.get('Rate values'), 0, 0.158987).flatten()
-        gl_rate = self.convert_points(self.free_vars.get('GL rate'), 0, 28.174).flatten()
+        gl_rate = self.convert_points(self.free_vars.get('QGL'), 0, 28.174).flatten()
         wc = self.convert_points(self.free_vars.get('WC'), 0, 1).flatten()
         gor = self.convert_points(self.free_vars.get('GOR'), 0, 0.1772).flatten()
         pressure = self.convert_points(self.free_vars.get('Pressure'), 14.696, 0.0689476).flatten()

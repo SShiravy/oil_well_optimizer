@@ -2,7 +2,7 @@ import numpy as np
 import json
 import os
 
-tpd_files_directory = input('enter directory of tpd files:').replace('\\', '/')
+txt_files_directory = input('enter directory of txt files:').replace('\\', '/')
 json_files_directory = input('enter directory of converted json:').replace('\\', '/')
 
 # create json files
@@ -10,7 +10,7 @@ data_dict = {
     "free variables":
         {
             "Rate values": '',
-            "GL rate": '',
+            "QGL": '',
             "WC": '',
             "GOR": '',
             "Pressure": ''
@@ -18,9 +18,9 @@ data_dict = {
     "tpd results": '',
 }
 
-for file_name in os.listdir(tpd_files_directory):
+for file_name in os.listdir(txt_files_directory):
     # read all tpd files in the directory then extract free variables and tpd results
-    with open(tpd_files_directory + '/' + file_name, 'r') as fp:
+    with open(txt_files_directory + '/' + file_name, 'r') as fp:
         data = fp.readlines()
         index = data.index('# Rate Values\n')
         free_var = data[index:index + 10]
