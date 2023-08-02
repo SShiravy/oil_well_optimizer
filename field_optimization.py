@@ -19,7 +19,7 @@ def fields_optimization(interpolate_obj, fixed_free_vars, well_number):
 
     result = minimize(optimize_qo, 100, bounds=Bounds(0, 1400), method=CALCULATE_FIELDS_METHOD)
     print(result)
-    QGL = result['x']
+    QGL = result['x'][0]
     GOR, WC = fixed_free_vars[1], fixed_free_vars[2]
     qw = Qliq * WC / 100
     qg = qo * GOR + QGL
