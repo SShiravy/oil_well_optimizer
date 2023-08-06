@@ -31,6 +31,7 @@ if __name__ == '__main__':
         # 2- well production
         fixed_free_vars = list(pd.read_csv(WELL_PRODUCTION_CSV_PATH).iloc[i])
         fixed_free_vars.append(0)
+        print('---- well production ----')
         Q, qw, qo, qg, BHP = well_production(interpolate_obj, np.array(fixed_free_vars),Q_MAX[i], i)
         print(f'fixed free variables:{fixed_free_vars[:-1]}\nQ_max:{Q_MAX[i]}\n'
               f'Q in intersection: {Q} | BHP: {BHP} -->> qo:{qo}, qw:{qw}, qg:{qg}')

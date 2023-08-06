@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import os
 
-qgl_test_case = [1400,1000,500]
+qgl_test_case = [100]
 for qgl_max in qgl_test_case:
     i = 0
     for data_file in os.listdir(DATA_DIR):
