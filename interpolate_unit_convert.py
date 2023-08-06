@@ -1,7 +1,6 @@
 # This interpolator includes convertion of the units
 from scipy import interpolate as irp
 import numpy as np
-
 from config import *
 
 

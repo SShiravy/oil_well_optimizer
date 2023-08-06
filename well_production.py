@@ -4,7 +4,7 @@ from scipy.optimize import minimize, Bounds
 import matplotlib.pyplot as plt
 
 
-def well_production(interpolate_obj, fixed_free_vars, well_number):
+def well_production(interpolate_obj, fixed_free_vars,q_max,well_number):
     """
     this method calculate qo,qw,qg using given inputs for each well
     where we have biggest Q of the intersection between IPR and VLP
@@ -14,7 +14,6 @@ def well_production(interpolate_obj, fixed_free_vars, well_number):
         global BHP_VLP
         free_vars = np.insert(fixed_free_vars, -1, Q)[:-1]
         BHP_VLP = interpolate_obj.interpolate(free_vars)
-        q_max = Q_MAX[well_number]
         if VOGEL_EQUATION[well_number]:
             BHP_IPR = 0.125 * PR[well_number] * (-1 + (81 - 80 * (Q / q_max)) ** (1 / 2))
         else:
@@ -23,7 +22,7 @@ def well_production(interpolate_obj, fixed_free_vars, well_number):
         return abs(BHP_IPR[0] - BHP_VLP[0])
 
     # we should specify the bounds parameter to avoid 'out of boundary' error when calculate VLP
-    result = minimize(difference, Q_initial[well_number], bounds=Bounds(63, 3200), method=WELL_PRODUCTION_METHOD)
+    result = minimize(difference, Q_initial[well_number], bounds=Bounds(63, q_max), method=WELL_PRODUCTION_METHOD)
     Q = result['x'][0]
     _, GOR, WC, QGL, _ = fixed_free_vars
     qw = Q * (WC / 100)
@@ -32,14 +31,14 @@ def well_production(interpolate_obj, fixed_free_vars, well_number):
     return Q, qw, qo, qg, BHP_VLP[0]
 
 
-def plot_ipr_vlp(interpolate_obj, free_vars, i):
+def plot_ipr_vlp(interpolate_obj, fixed_free_vars, i):
     """
     using for loop for creating plots
     """
     vlp, ipr = [], []
     Q_list = np.array(range(64, 3000, 15))
     for Q in Q_list:
-        free_vars = np.insert(free_vars, -1, Q)[:-1]
+        free_vars = np.insert(fixed_free_vars, -1, Q)[:-1]
         vlp.append(interpolate_obj.interpolate(free_vars)[0])
         if VOGEL_EQUATION[i]:
             q_max = Q_MAX[i]

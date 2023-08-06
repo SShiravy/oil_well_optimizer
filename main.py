@@ -31,14 +31,14 @@ if __name__ == '__main__':
         # 2- well production
         fixed_free_vars = list(pd.read_csv(WELL_PRODUCTION_CSV_PATH).iloc[i])
         fixed_free_vars.append(0)
-        Q, qw, qo, qg, BHP = well_production(interpolate_obj, np.array(fixed_free_vars), i)
+        Q, qw, qo, qg, BHP = well_production(interpolate_obj, np.array(fixed_free_vars),Q_MAX[i], i)
         print(f'fixed free variables:{fixed_free_vars[:-1]}\nQ_max:{Q_MAX[i]}\n'
               f'Q in intersection: {Q} | BHP: {BHP} -->> qo:{qo}, qw:{qw}, qg:{qg}')
         plot_ipr_vlp(interpolate_obj, fixed_free_vars, i)
         # 3-fields parameters
-        qo, qw, qg, QGL, Qliq = fields_optimization(interpolate_obj, np.array(fixed_free_vars), i)
+        qo, qw, qg, QGL, Qliq = fields_optimization(interpolate_obj, np.array(fixed_free_vars),1400, i)
         print(f'\nQGL: {QGL}, qo: {qo}, Qliq: {Qliq}')
-        plot_qo(fixed_free_vars, interpolate_obj, i)
+        plot_qo(fixed_free_vars, interpolate_obj, i, 1400)
         # summation for fields parameters
         qo_field += qo
         qw_field += qw
