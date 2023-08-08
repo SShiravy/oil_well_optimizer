@@ -1,7 +1,7 @@
 DATA_DIR = 'wells data'  # directory of json files
 INTERPOLATION_CSV_PATH = 'Data_for_Interpolation.csv'
 WELL_PRODUCTION_CSV_PATH = 'Data_for_well_production.csv'
-INTERPOLATE_METHOD = "cubic"  # or cubic,pchip
+INTERPOLATE_METHOD = "cubic"  # cubic,pchip,linear
 
 J = [19.77, 19.73, 19.73, 3.53, 3.53, 3.53]  # Sm3/day/bar
 PR = [238.882, 256.119, 256.119, 209.649, 209.649, 209.649]  # bara
