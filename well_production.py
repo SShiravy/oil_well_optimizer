@@ -22,13 +22,10 @@ def well_production(interpolate_obj, fixed_free_vars,q_max,well_number):
         return abs(BHP_IPR[0] - BHP_VLP[0])
 
     # we should specify the bounds parameter to avoid 'out of boundary' error when calculate VLP
-    result = minimize(difference, Q_initial[well_number], bounds=Bounds(63, Q_MAX[well_number]), method=WELL_PRODUCTION_METHOD)
+    result = minimize(difference, Q_initial[well_number], bounds=Bounds(63, q_max), method=WELL_PRODUCTION_METHOD)
     Q = result['x'][0]
     _, GOR, WC, QGL, _ = fixed_free_vars
-    if Q>q_max:
-        qw = q_max*(WC/100)
-    else:
-        qw = q_max*(WC/100)
+    qw = Q * (WC / 100)
     qo = Q - qw  # Q-qw
     qg = (qo * GOR + QGL) / 1000
     return Q, qw, qo, qg, BHP_VLP[0]

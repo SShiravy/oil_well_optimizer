@@ -22,7 +22,7 @@ def fields_optimization(interpolate_obj, fixed_free_vars,qgl_max,well_number):
     QGL = result['x'][0]
     GOR, WC = fixed_free_vars[1], fixed_free_vars[2]
     qw = Qliq * WC / 100
-    qg = qo * GOR + QGL
+    qg = (qo * GOR + QGL)/1000
     return qo, qw, qg, QGL, Qliq
 
 

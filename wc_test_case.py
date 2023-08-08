@@ -7,21 +7,21 @@ import numpy as np
 import os
 
 i = 0
-qw_max_list = {
-    1: [840,600,500],
-    2: [2615.34],
-    3: [2615.34],
-    4: [503.27],
-    5: [503.27],
-    6: [503.27]
+wc_test_cases = {
+    1: [60,40],
+    2: [30,15],
+    3: [35,25],
+    4: [9,7],
+    5: [10,6],
+    6: [8,2]
 }
-qgl_for_qw = {
-    1: [35,41.265,52.003],
-    2: [101.325],
-    3: [46.726],
-    4: [35.358],
-    5: [33.002],
-    6: [29.680]
+qgl_for_wc = {
+    1: [55.95,65.82],
+    2: [92.28,78.56],
+    3: [44.8,32.45],
+    4: [36.17,36.99],
+    5: [33.36,35.006],
+    6: [29.75,30.28]
 }
 
 for data_file in os.listdir(DATA_DIR):
@@ -33,13 +33,12 @@ for data_file in os.listdir(DATA_DIR):
     interpolate_obj.config_interpolation()
     fixed_free_vars = list(pd.read_csv(WELL_PRODUCTION_CSV_PATH).iloc[i])
     fixed_free_vars.append(0)
-    for test_case_i in range(len(qw_max_list[i + 1])):
-        qw_max = qw_max_list[i+1][test_case_i]
-        q_max = qw_max/(fixed_free_vars[2]/100)
-        qgl = qgl_for_qw[i+1][test_case_i]
+    for wc_i in range(len(wc_test_cases[i + 1])):
+        wc = wc_test_cases[i + 1][wc_i]
+        fixed_free_vars[2] = wc
+        qgl = qgl_for_wc[i + 1][wc_i]
         fixed_free_vars[-2] = qgl
-        Q, qw, qo, qg, BHP = well_production(interpolate_obj, np.array(fixed_free_vars), q_max, i)
-        print(f'Q max:{q_max}\n'
-              f'Q in intersection: {Q} | BHP: {BHP} -->> qo:{qo}, qw:{qw}, qg:{qg}\n'
+        Q, qw, qo, qg, BHP = well_production(interpolate_obj, np.array(fixed_free_vars), Q_MAX[i], i)
+        print(f'wc:{wc},qgl:{qgl}, Q in intersection: {Q} | BHP: {BHP} -->> qo:{qo}, qw:{qw}, qg:{qg}\n'
               f'           =================           ')
     i += 1
