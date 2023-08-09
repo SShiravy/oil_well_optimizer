@@ -10,9 +10,6 @@ VOGEL_EQUATION = [True, False, False, False, False, False]  # vogel or composite
 Q_MAX = [2356.40,2615.34,2615.34,503.27,503.27,503.27]
 Q_initial = [1000, 1000, 1000, 100, 100, 100]
 TOTAL_QGL = 1408.69
-# --------------------------->>>> Pressure, GOR, WC, QGL, Rate values
-unit_convert_coefficient = [0.0689476, 0.1772, 1, 28.174, 0.158987]
-unit_convert_intercept = [14.696, 0, 0, 0, 0]
 # --------------------------->>>> method for minimize
 # Nelder-Mead, L-BFGS-B, TNC, SLSQP, Powell, trust-constr, COBYLA
 WELL_PRODUCTION_METHOD = 'Nelder-Mead'

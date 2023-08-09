@@ -7,10 +7,10 @@ import pandas as pd
 import numpy as np
 import os
 import warnings
+import time
 
 warnings.filterwarnings('ignore')
-
-# TODO: good prints
+start_t = time.time()
 if __name__ == '__main__':
     # create dataframe for test interpolation
     df = pd.read_csv(INTERPOLATION_CSV_PATH)
@@ -50,3 +50,6 @@ if __name__ == '__main__':
     print(f'------------------------------\n'
           f'qo field:{qo_field},qw field:{qw_field},'
           f'qg field:{qg_field},QGL field:{QGL_field},total QGL:{TOTAL_QGL}')
+
+end_t = time.time()
+print('elapsed time(s):',end_t-start_t)

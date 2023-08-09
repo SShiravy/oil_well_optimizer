@@ -52,7 +52,7 @@ def plot_ipr_vlp(interpolate_obj, fixed_free_vars, i):
 
     plt.plot(Q_list, vlp, color='blue')
     plt.plot(Q_list, ipr, color='red')
-    plt.xlabel("Liquid Rate")
-    plt.ylabel("Flowing Bottom Hole Pressure")
+    plt.xlabel("Liquid Rate (Sm3/day)")
+    plt.ylabel("Flowing Bottom Hole Pressure (BARa)")
     plt.savefig(f'images/IPR_VLP-Well{i + 1}.png')
     plt.figure()
