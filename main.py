@@ -39,7 +39,7 @@ if __name__ == '__main__':
         # 3-fields parameters
         qo, qw, qg, QGL, Qliq = fields_optimization(interpolate_obj, np.array(fixed_free_vars),1400, i)
         print(f'\nQGL: {QGL}, qo: {qo}, Qliq: {Qliq}')
-        plot_qo(fixed_free_vars, interpolate_obj, i, 1400)
+        plot_qo(fixed_free_vars, interpolate_obj, i, 230)
         # summation for fields parameters
         qo_field += qo
         qw_field += qw

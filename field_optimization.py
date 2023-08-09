@@ -31,7 +31,7 @@ def plot_qo(fixed_free_vars, interpolate_obj, i,qgl_max):
     using for loop for creating plots
     """
     QO_list = []
-    QGL_LIST = np.array(range(50, qgl_max,10))
+    QGL_LIST = np.array(range(30, qgl_max,10))
     for QGL in QGL_LIST:
         free_variables = np.insert(fixed_free_vars, -2, QGL)
         free_variables = np.delete(free_variables, -2, 0)
